@@ -1,13 +1,12 @@
 ---
 name: Feature 이슈 생성 템플릿
 about: 해당 이슈 생성 템플릿을 참고하여 이슈를 생성해주세요!
-title: "[Feature] #이슈넘버 "
-labels: "\U0001F578️ bug, ⚒️ feature"
+title: "[Feature] ex) 구현내용 작성해주세요 "
+labels: "⚒️ feature"
 assignees: ''
 
 ---
 
-## [Feature] #이슈넘버 구현내용 
 
 ## 📌 기능 설명
 추가하려는 기능에 대한 간단한 설명을 적어주세요.
