@@ -2,7 +2,7 @@
 name: Feature 이슈 생성 템플릿
 about: 해당 이슈 생성 템플릿을 참고하여 이슈를 생성해주세요!
 title: "[Feature] #이슈넘버 "
-labels: feature
+labels: "\U0001F578️ bug, ⚒️ feature"
 assignees: ''
 
 ---
