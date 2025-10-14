@@ -12,7 +12,7 @@ class MapViewController: UIViewController {
     func configureBarUI() {
         view.addSubview(customBar)
         customBar.snp.makeConstraints {
-            $0.width.equalTo(250)
+            $0.width.equalTo(270)
             $0.height.equalTo(60)
             $0.centerX.equalToSuperview()
             $0.bottom.equalTo(view.safeAreaLayoutGuide).inset(20) // 안전 영역 기준으로 하단 고정

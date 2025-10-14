@@ -35,7 +35,7 @@ class navigationBar: UIView {
         }
         
         mapButton.setImage(UIImage(
-            systemName: "map.fill",
+            systemName: "map",
             withConfiguration: UIImage.SymbolConfiguration(pointSize: 25, weight: .bold)),
             for: .normal)
         mapButton.tintColor = UIColor(named: "defaultColor")
@@ -56,10 +56,10 @@ class navigationBar: UIView {
         }
         
         myPageButton.setImage(UIImage(
-            systemName: "person.fill",
+            systemName: "person",
             withConfiguration: UIImage.SymbolConfiguration(pointSize: 30, weight: .bold)),
             for: .normal)
-        myPageButton.tintColor = .white
+        myPageButton.tintColor = .black
         myPageButton.snp.makeConstraints {
             $0.trailing.equalToSuperview().inset(20)
             $0.centerY.equalToSuperview()
