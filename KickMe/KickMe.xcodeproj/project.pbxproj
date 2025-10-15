@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		50263FB52E9CCB8900BF2BDF /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 50263FB42E9CCB8900BF2BDF /* SnapKit */; };
+		50F3C0E12E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 50F3C0E02E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,6 +42,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				50263FB52E9CCB8900BF2BDF /* SnapKit in Frameworks */,
+				50F3C0E12E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +86,7 @@
 			name = KickMe;
 			packageProductDependencies = (
 				50263FB42E9CCB8900BF2BDF /* SnapKit */,
+				50F3C0E02E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic */,
 			);
 			productName = KickMe;
 			productReference = 50263F9B2E9CCB3100BF2BDF /* KickMe.app */;
@@ -115,6 +118,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				50263FB32E9CCB8900BF2BDF /* XCRemoteSwiftPackageReference "SnapKit" */,
+				50F3C0DD2E9FB40300F5A3E1 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 50263F9C2E9CCB3100BF2BDF /* Products */;
@@ -352,6 +356,14 @@
 				minimumVersion = 5.7.1;
 			};
 		};
+		50F3C0DD2E9FB40300F5A3E1 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kakao-mapsSDK/KakaoMapsSDK-SPM.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.12.10;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -359,6 +371,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 50263FB32E9CCB8900BF2BDF /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		50F3C0E02E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 50F3C0DD2E9FB40300F5A3E1 /* XCRemoteSwiftPackageReference "KakaoMapsSDK-SPM" */;
+			productName = "KakaoMapsSDK-SPM-Dynamic";
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

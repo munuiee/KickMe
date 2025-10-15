@@ -1,6 +1,7 @@
 
 import UIKit
 import SnapKit
+import KakaoMapsSDK
 
 class MyPageViewController: UIViewController {
     /* ---------- 테이블뷰에 추가 될 데이터 배열 ---------- */
