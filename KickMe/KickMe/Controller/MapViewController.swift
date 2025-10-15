@@ -1,12 +1,12 @@
+import Foundation
 import UIKit
+import SnapKit
 
 class MapViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        view.backgroundColor = .systemGray6
     }
-
-
+    
 }
-
