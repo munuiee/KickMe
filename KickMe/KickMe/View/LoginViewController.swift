@@ -96,7 +96,7 @@ class LoginViewController: UIViewController {
             $0.leading.equalToSuperview().offset(30)
         }
         
-        // "ID" 
+        // "ID"
         idLabel.snp.makeConstraints {
             $0.top.equalTo(titleLabel.snp.bottom).offset(60)
             $0.leading.equalTo(titleLabel)
@@ -132,7 +132,7 @@ class LoginViewController: UIViewController {
             $0.leading.trailing.height.equalTo(idTextField)
         }
         
-    
+        
         pwUnderLine.backgroundColor = .lightGray
         pwUnderLine.snp.makeConstraints {
             $0.top.equalTo(pwTextField.snp.bottom).offset(4)
@@ -157,7 +157,7 @@ class LoginViewController: UIViewController {
             $0.height.equalTo(44)
         }
     }
-
+    
     /* ---------- UIButton 구현 ---------- */
     private func setupActions() {
         // 버튼과 함수 연결
@@ -171,9 +171,22 @@ class LoginViewController: UIViewController {
         // ✨ 나중에 로그인 기능 연결( UserDefaulets 검증 예정)
     }
     
-    // 회원가입 버튼 클릭 시 실행
     @objc private func didTapSignUp() {
         print("회원가입 버튼 눌림")
-        // ✨ 나중에 회원가입 화면으로 이동 기능 추가 예정
+        let signUpVC = SignUpViewController()
+
+        // 네비게이션 컨트롤러가 없는 경우 -> 모달로 네비게이션 포함해서 띄우기
+        if navigationController == nil {
+            let nav = UINavigationController(rootViewController: signUpVC)
+            nav.modalPresentationStyle = .fullScreen
+            present(nav, animated: true)
+        } else {
+            // 네비게이션 컨트롤러가 있는 경우 -> push로 화면 이동
+            // Back 버튼의 글자는 숨기고 화살표만 보이도록 설정
+            navigationItem.backButtonTitle = ""
+            navigationController?.pushViewController(signUpVC, animated: true)
+        }
     }
+
 }
+
