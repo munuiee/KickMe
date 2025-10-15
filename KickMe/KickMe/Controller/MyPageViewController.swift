@@ -3,9 +3,9 @@ import UIKit
 import SnapKit
 
 class MyPageViewController: UIViewController {
-    /* ---------- 테이블뷰 테스트용 임시 데이터 ---------- */
-    var usageDatas: [String] = ["2025.10.01", "2025.10.03", "2025.10.10"]
-    var kickBoardDatas: [String] = ["01번", "02번", "03번"]
+    /* ---------- 테이블뷰에 추가 될 데이터 배열 ---------- */
+    var usageDatas: [String] = []
+    var kickBoardDatas: [String] = []
     
     /* ---------- UI 요소 ---------- */
     private let myPageLabel: UILabel = {
@@ -203,5 +203,22 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
 }
-
+/* ---------- 등록 페이지에서 입력된 데이터 추가하는 함수 ---------- */
+extension MyPageViewController {
+    func updateData(newBoardNum: String, newTimeText: String) {
+        
+        // 이용 내역 추가
+        let now = Date()
+        let nowString = now.dateTime
+        
+        let usageEntry = "\(nowString) - \(newTimeText)"
+        usageDatas.append(usageEntry)
+        
+        // 킥보드 번호 추가
+        kickBoardDatas.append(newBoardNum)
+        
+        historyTableView.reloadData()
+        kickBoardTableView.reloadData()
+    }
+}
 
