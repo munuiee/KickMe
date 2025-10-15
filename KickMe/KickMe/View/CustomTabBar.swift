@@ -32,7 +32,7 @@ class CustomTabBar: UITabBar {
         mainButton.layer.cornerRadius = 40
         mainButton.layer.masksToBounds = true
         mainButton.clipsToBounds = false
-        mainButton.backgroundColor = UIColor(named: "defaultColor")
+        mainButton.backgroundColor = UIColor(named: "MainColor")
         mainButton.titleLabel?.font = .systemFont(ofSize: 25, weight: .bold)
         mainButton.setTitle("대여", for: .normal)
         mainButton.snp.makeConstraints {
@@ -70,11 +70,19 @@ class CustomTabBar: UITabBar {
     
     // 버튼 클릭시 색상 변경
     func updateColors(selectedIndex: Int) {
-        let on = UIColor(named: "defaultColor") ?? .systemBlue
+        let on = UIColor(named: "MainColor") ?? .systemBlue
         let off = UIColor.label.withAlphaComponent(0.5)
         
         mapButton.tintColor = (selectedIndex == 0) ? on : off
         myPageButton.tintColor = (selectedIndex == 2) ? on : off
+        
+        // 등록페이지, 마이페이지 외곽선 추가
+        if selectedIndex == 1 || selectedIndex == 2 {
+            customView.layer.borderWidth = 1.5
+            customView.layer.borderColor = (UIColor(named: "tabBarBorder") ?? .systemGray6).cgColor
+        } else {
+            customView.layer.borderWidth = 0
+        }
     }
     
     

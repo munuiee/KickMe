@@ -146,7 +146,7 @@ class MyPageViewController: UIViewController {
         logoutButton.snp.makeConstraints {
             $0.leading.trailing.equalToSuperview().inset(35)
             $0.height.equalTo(35)
-            $0.top.equalToSuperview().inset(700)
+            $0.top.equalToSuperview().inset(660)
         }
         signOutButton.snp.makeConstraints {
             $0.top.equalTo(logoutButton.snp.bottom).offset(8)
@@ -204,12 +204,4 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
     
 }
 
-// 버튼용으로 만든 임시 파일
-
-class MyPageViewController: UIViewController {
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        view.backgroundColor = .red
-    }
-}
 
