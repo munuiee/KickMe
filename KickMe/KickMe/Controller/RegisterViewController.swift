@@ -1,6 +1,9 @@
 
+
+
+import Foundation
 import UIKit
-import SnapKit
+
 
 class RegisterViewController: UIViewController {
     // 픽커뷰에 들어갈 시간 배열

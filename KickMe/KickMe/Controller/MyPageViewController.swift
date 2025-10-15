@@ -1,3 +1,4 @@
+
 import UIKit
 import SnapKit
 
@@ -201,5 +202,14 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
         return UITableViewCell()
     }
     
+}
+
+// 버튼용으로 만든 임시 파일
+
+class MyPageViewController: UIViewController {
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.backgroundColor = .red
+    }
 }
 
