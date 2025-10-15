@@ -119,13 +119,33 @@ class RegisterViewController: UIViewController {
     /* ---------- 픽커뷰 툴바 "완료"버튼 클릭 시 실행 ---------- */
     @objc
     private func donePicker() {
-        timeTextField.resignFirstResponder()
+        if timeTextField.text == "0시간" {
+            return
+        } else {
+            timeTextField.resignFirstResponder()
+        }
+
     }
     
-    /* ---------- "등록하기" 버튼 클릭 시 실행(모달뷰 연결 시 수정필요) ---------- */
+    /* ---------- "등록하기" 버튼 클릭 시 실행 (함수이름 수정 필요)---------- */
     @objc
     private func didmissModalView() {
-        dismiss(animated: true, completion: nil)
+        guard let boardNum = kickBoardTextField.text, !boardNum.isEmpty else { return }
+        guard let timeText = timeTextField.text, !timeText.isEmpty else { return }
+
+        // 탭바 컨트롤러 연결
+        guard let tabBarController = self.tabBarController else { return }
+        
+        let mapTabIndex = 0
+        tabBarController.selectedIndex = mapTabIndex
+        
+        if let mapNav = tabBarController.viewControllers?[mapTabIndex] as? UINavigationController {
+            mapNav.popToRootViewController(animated: true)
+        }
+        // 버튼 누르면 텍스트필드 비워짐
+        kickBoardTextField.text = ""
+        timeTextField.text = ""
+
     }
 }
 
