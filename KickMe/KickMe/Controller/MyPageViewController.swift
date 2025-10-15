@@ -1,6 +1,7 @@
 
 import UIKit
 import SnapKit
+import KakaoMapsSDK
 
 class MyPageViewController: UIViewController {
     /* ---------- 테이블뷰 테스트용 임시 데이터 ---------- */
