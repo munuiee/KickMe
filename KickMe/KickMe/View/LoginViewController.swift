@@ -70,7 +70,7 @@ class LoginViewController: UIViewController {
     private let signUpButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("회원가입", for: .normal)
-        button.setTitleColor(UIColor(red: 0x55/255, green: 0x74/255, blue: 0xFF/255, alpha: 1.0), for: .normal)
+        button.setTitleColor(.black, for: .normal)
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor(red: 0x55/255, green: 0x74/255, blue: 0xFF/255, alpha: 1.0).cgColor
         button.layer.cornerRadius = 6
@@ -83,6 +83,7 @@ class LoginViewController: UIViewController {
         
         // 화면 요소(텍스트 필드, 버튼 등) 배치 메서드 실행
         setupLayout()
+        setupActions()
         
     }
     /* ---------- UI 오토레이아웃 ---------- */
@@ -157,4 +158,22 @@ class LoginViewController: UIViewController {
         }
     }
 
+    /* ---------- UIButton 구현 ---------- */
+    private func setupActions() {
+        // 버튼과 함수 연결
+        loginButton.addTarget(self, action: #selector(didTapLogin), for: .touchUpInside)
+        signUpButton.addTarget(self, action: #selector(didTapSignUp), for: .touchUpInside)
+    }
+    
+    // 로그인 버튼 클릭 시 실행
+    @objc private func didTapLogin() {
+        print("로그인 버튼 눌림")
+        // ✨ 나중에 로그인 기능 연결( UserDefaulets 검증 예정)
+    }
+    
+    // 회원가입 버튼 클릭 시 실행
+    @objc private func didTapSignUp() {
+        print("회원가입 버튼 눌림")
+        // ✨ 나중에 회원가입 화면으로 이동 기능 추가 예정
+    }
 }
