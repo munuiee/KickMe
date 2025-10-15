@@ -1,8 +1,6 @@
-import Foundation
 import UIKit
-import SnapKit
 
-class MapViewController: UIViewController {
+class MainViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -10,3 +8,4 @@ class MapViewController: UIViewController {
     }
     
 }
+
