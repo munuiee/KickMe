@@ -158,12 +158,15 @@ class MyPageViewController: UIViewController {
     @objc
     private func didTappedLogout() {
         print("로그아웃 클릭 됨")
+        logOutAlrert()
+
     }
     
     /* ---------- "회원탈퇴" 버튼 클릭 시 실행(임시) ---------- */
     @objc
     private func didTappedSignOut() {
         print("회원탈퇴 클릭 됨")
+        signOutAlrert()
     }
 }
 
@@ -219,6 +222,52 @@ extension MyPageViewController {
         
         historyTableView.reloadData()
         kickBoardTableView.reloadData()
+    }
+}
+/* ---------- 알럿기능 추가 ---------- */
+extension MyPageViewController {
+    func makeAlert(title: String,
+                   message: String,
+                   cancleAction: ((UIAlertAction) -> Void)? = nil,
+                   checkAction: ((UIAlertAction) -> Void)? = nil,
+                   completion: (() -> Void)? = nil) {
+        let alretVC = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let cancleAction = UIAlertAction(title: "취소", style: .default, handler: cancleAction)
+        alretVC.addAction(cancleAction)
+        let checkAction = UIAlertAction(title: "확인", style: .default, handler: checkAction)
+        alretVC.addAction(checkAction)
+        
+        self.present(alretVC, animated: true)
+    }
+    /* ---------- 로그아웃 알럿 ---------- */
+    func logOutAlrert() {
+        self.makeAlert(title: "로그아웃", message: "로그아웃 하시겠습니까?", cancleAction: { _ in
+            }, checkAction: { _ in
+            // "확인" 클릭 시 로그인 화면으로 이동
+            let loginVC = LoginViewController()
+            let rootVC = UINavigationController(rootViewController: loginVC)
+            
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let window = windowScene.windows.first else {
+                return
+            }
+            window.rootViewController = rootVC
+        })
+    }
+    /* ---------- 회원탈퇴 알럿 ---------- */
+    func signOutAlrert() {
+        self.makeAlert(title: "회원 탈퇴", message: "회원 탈퇴 하시겠습니까?", cancleAction: { _ in
+            }, checkAction: { _ in
+            // "확인" 클릭 시 로그인 화면으로 이동
+            let loginVC = LoginViewController()
+            let rootVC = UINavigationController(rootViewController: loginVC)
+            
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let window = windowScene.windows.first else {
+                return
+            }
+            window.rootViewController = rootVC
+        })
     }
 }
 
