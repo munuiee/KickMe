@@ -211,12 +211,13 @@ extension MapViewController: CLLocationManagerDelegate {
     func moveCameraToCurrentLoaction(_ coordinate: CLLocationCoordinate2D) {
         let currentPosition = MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude)
         
-//        if let mapView = controller?.getView("mapView") as? KakaoMap {
-//            mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 15, mapView: mapView))
-//        }
+        if let mapView = controller?.getView("mapView") as? KakaoMap {
+            mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 15, mapView: mapView))
+        }
+        
     }
     
-  
+
 }
 
 
