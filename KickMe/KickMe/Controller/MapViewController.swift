@@ -2,11 +2,18 @@ import Foundation
 import UIKit
 import SnapKit
 import KakaoMapsSDK
+import CoreLocation
 
 class MapViewController: UIViewController, MapControllerDelegate {
+
     
     var mapView: KMViewContainer!
     var controller: KMController?
+    var locationManager: CLLocationManager!
+    var lastCoordinate: CLLocationCoordinate2D?
+    var mapReady = false
+    var userPoiAdded = false // 현위치 마커 플래그
+    var didCenterOnUser = false // 자동 축소 방지
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,6 +25,17 @@ class MapViewController: UIViewController, MapControllerDelegate {
         controller = KMController(viewContainer: mapView)
         controller?.delegate = self
         controller?.prepareEngine()
+        
+        
+        locationManager = CLLocationManager()
+        locationManager.delegate = self
+        locationManager.requestWhenInUseAuthorization()
+        locationManager.startUpdatingLocation()
+
+        
+        var la = locationManager.location?.coordinate.latitude ?? 0
+        var lo = locationManager.location?.coordinate.longitude ?? 0
+
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -52,6 +70,19 @@ class MapViewController: UIViewController, MapControllerDelegate {
     //addView 성공 이벤트 delegate. 추가적으로 수행할 작업을 진행한다.
     func addViewSucceeded(_ viewName: String, viewInfoName: String) {
         print("OK") //추가 성공. 성공시 추가적으로 수행할 작업을 진행한다.
+        mapReady = true
+        guard let _ = controller?.getView("mapView") as? KakaoMap else { return }
+
+        registerPerLevelStyle()
+        createLabelLayer()
+        //createPois()
+        
+        if let coord = lastCoordinate {
+            moveCameraToCurrentLoaction(coord)
+        }
+        
+        
+      
     }
 
     //addView 실패 이벤트 delegate. 실패에 대한 오류 처리를 진행한다.
@@ -73,6 +104,119 @@ class MapViewController: UIViewController, MapControllerDelegate {
         }
     }
     
+    func getKoreanAddress(la: Double, lo: Double) {
+        let location = CLLocation(latitude: la, longitude: lo)
+        let geocoder = CLGeocoder()
+        geocoder.reverseGeocodeLocation(location, preferredLocale: Locale(identifier: "ko_KR")) { (placemarks, error) in
+            if let error = error {
+                print("주소 변환 실패: \(error)")
+                return
+            }
+            
+            if let place = placemarks?.first {
+                print(place.name ?? "주소 없음")
+            }
+        }
+    }
+    
+}
+
+extension MapViewController: CLLocationManagerDelegate {
+    func getLocationUsagePermission() {
+        self.locationManager.requestWhenInUseAuthorization()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        switch status {
+        case .authorizedAlways, .authorizedWhenInUse:
+            print("GPS 권한 설정됨")
+        case .restricted, .notDetermined:
+            print("GPS 권한 설정되지 않음")
+            getLocationUsagePermission()
+        case .denied:
+            print("GPS 권한 요청 거부됨")
+            getLocationUsagePermission()
+        default:
+            print("GPS: Default")
+        }
+    }
+    
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
+        print("위치 정보를 가져오는 데 실패했습니다: \(error.localizedDescription)")
+    }
+  
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        let coord = location.coordinate
+        
+        lastCoordinate = coord
+        if mapReady {
+            moveCameraToCurrentLoaction(coord)
+            
+            if !didCenterOnUser {
+                moveCameraToCurrentLoaction(coord)
+                didCenterOnUser = true
+            }
+            
+            if !userPoiAdded {
+                createPois()
+                userPoiAdded = true
+            }
+        }
+        
+        getKoreanAddress(la: coord.latitude, lo: coord.longitude)
+        
+    }
+    
+    /* ---------- 마커 ----------*/
+  
+    func createLabelLayer() {
+        let view = controller?.getView("mapView") as! KakaoMap
+        let manager = view.getLabelManager()
+        let layerOption = LabelLayerOptions(layerID: "PoiLayer", competitionType: .none, competitionUnit: .symbolFirst, orderType: .rank, zOrder: 0)
+        let _ = manager.addLabelLayer(option: layerOption)
+    }
+    
+    func registerPerLevelStyle() {
+        guard let map = controller?.getView("mapView") as? KakaoMap else { return }
+        let manager = map.getLabelManager()
+        
+        let iconImage = UIImage(named: "marker_small") ?? UIImage(systemName: "mappin")!
+        let icon = PoiIconStyle(symbol: iconImage, anchorPoint: CGPoint(x: 0.5, y: 1.0))
+        
+        let perLevel = PerLevelPoiStyle(iconStyle: icon, level: 0)
+        
+        let poiStyle = PoiStyle(styleID: "PerLevelStyle", styles: [perLevel])
+        manager.addPoiStyle(poiStyle)
+    }
+    
+    func createPois() {
+        let view = controller?.getView("mapView") as! KakaoMap
+        let manager = view.getLabelManager()
+        let layer = manager.getLabelLayer(layerID: "PoiLayer")
+
+        guard let coord = lastCoordinate else { return }
+        let point = MapPoint(longitude: coord.longitude, latitude: coord.latitude)
+        
+        let poiOption = PoiOptions(styleID: "PerLevelStyle")
+        poiOption.rank = 0
+        
+        let poi1 = layer?.addPoi(option: poiOption, at: point)
+        poi1?.show()
+        
+        view.moveCamera(CameraUpdate.make(target: point, zoomLevel: 15, mapView: view))
+    }
+    
+    func moveCameraToCurrentLoaction(_ coordinate: CLLocationCoordinate2D) {
+        let currentPosition = MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude)
+        
+//        if let mapView = controller?.getView("mapView") as? KakaoMap {
+//            mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 15, mapView: mapView))
+//        }
+    }
+    
+  
 }
 
 
