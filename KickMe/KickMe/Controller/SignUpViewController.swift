@@ -71,6 +71,7 @@ class SignUpViewController: UIViewController {
         textField.font = .systemFont(ofSize: 12)
         textField.textColor = .darkGray
         textField.isSecureTextEntry = true
+        textField.textContentType = .none
         return textField
     }()
     

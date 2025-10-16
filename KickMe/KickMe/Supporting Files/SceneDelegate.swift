@@ -10,7 +10,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
 
 
-        window.rootViewController = LoginViewController()
+        window.rootViewController = TabBarController()
 
         window.makeKeyAndVisible()
 
