@@ -176,6 +176,14 @@ class SignUpViewController: UIViewController {
             return
         }
         
+        // UserDefaults에 회원정보 저장
+        UserDefaults.standard.set(name, forKey: "user_name")
+        UserDefaults.standard.set(id, forKey: "user_id")
+        UserDefaults.standard.set(pw, forKey: "user_pw")
+        
+        // 저장된 값 콘솔로 확인
+        print("회원가입 데이터 저장 완료: \(name), \(id), \(pw)")
+        
         
         // 모두 입력했을 때 성공 알림
         let successAlert = UIAlertController(title: "회원가입 완료", message: "회원가입이 성공적으로 완료되었습니다!", preferredStyle: .alert)
