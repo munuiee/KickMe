@@ -150,6 +150,7 @@ class SignUpViewController: UIViewController {
         signUpButton.addTarget(self, action: #selector(didTapSignUp), for: .touchUpInside)
     }
     
+    
     // 회원가입 버튼 동작
     @objc private func didTapSignUp() {
         
@@ -166,10 +167,23 @@ class SignUpViewController: UIViewController {
             present(alert, animated: true)
             return
         }
+        // 비밀번호 8자 미만일 때 경고 알림 (추가)
+        if pw.count < 8 {
+            let alert = UIAlertController(title: "비밀번호 오류", message: "비밀번호는 8자 이상 입력해주세요", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
         
         // 모두 입력했을 때 성공 알림
         let successAlert = UIAlertController(title: "회원가입 완료", message: "회원가입이 성공적으로 완료되었습니다!", preferredStyle: .alert)
-        successAlert.addAction(UIAlertAction(title: "확인", style: .default))
+        
+        successAlert.addAction(UIAlertAction(title: "확인", style: .default, handler:  { _ in
+            // 회원가입 완료 후 로그인 화면으로 돌아가기
+            self.dismiss(animated: true)
+            self.navigationController?.popViewController(animated: true)
+        }))
         present(successAlert, animated: true)
             
         }
