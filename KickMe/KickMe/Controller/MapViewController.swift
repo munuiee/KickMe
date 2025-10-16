@@ -14,6 +14,7 @@ class MapViewController: UIViewController, MapControllerDelegate {
     var mapReady = false
     var userPoiAdded = false // 현위치 마커 플래그
     var didCenterOnUser = false // 자동 축소 방지
+    var userPoi: Poi?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,8 +34,7 @@ class MapViewController: UIViewController, MapControllerDelegate {
         locationManager.startUpdatingLocation()
 
         
-        var la = locationManager.location?.coordinate.latitude ?? 0
-        var lo = locationManager.location?.coordinate.longitude ?? 0
+       
 
     }
     
@@ -159,9 +159,8 @@ extension MapViewController: CLLocationManagerDelegate {
                 didCenterOnUser = true
             }
             
-            if !userPoiAdded {
-                createPois()
-                userPoiAdded = true
+            DispatchQueue.main.async { [weak self] in
+                self?.createPois()
             }
         }
         
@@ -182,12 +181,15 @@ extension MapViewController: CLLocationManagerDelegate {
         guard let map = controller?.getView("mapView") as? KakaoMap else { return }
         let manager = map.getLabelManager()
         
-        let iconImage = UIImage(named: "marker_small") ?? UIImage(systemName: "mappin")!
+        let iconImage = (UIImage(named: "marker_small") ?? UIImage(systemName: "mappin")!).withRenderingMode(.alwaysOriginal)
         let icon = PoiIconStyle(symbol: iconImage, anchorPoint: CGPoint(x: 0.5, y: 1.0))
         
-        let perLevel = PerLevelPoiStyle(iconStyle: icon, level: 0)
+        var styles: [PerLevelPoiStyle] = []
+        for level in 0...20 {
+            styles.append(PerLevelPoiStyle(iconStyle: icon, level: level))
+        }
         
-        let poiStyle = PoiStyle(styleID: "PerLevelStyle", styles: [perLevel])
+        let poiStyle = PoiStyle(styleID: "PerLevelStyle", styles: styles)
         manager.addPoiStyle(poiStyle)
     }
     
@@ -198,22 +200,31 @@ extension MapViewController: CLLocationManagerDelegate {
 
         guard let coord = lastCoordinate else { return }
         let point = MapPoint(longitude: coord.longitude, latitude: coord.latitude)
+   
+        if let poi = userPoi {
+            poi.position = point
+                poi.show()
+                return
+        }
         
         let poiOption = PoiOptions(styleID: "PerLevelStyle")
         poiOption.rank = 0
         
+        
         let poi1 = layer?.addPoi(option: poiOption, at: point)
         poi1?.show()
         
-        view.moveCamera(CameraUpdate.make(target: point, zoomLevel: 15, mapView: view))
+        //view.moveCamera(CameraUpdate.make(target: point, zoomLevel: 15, mapView: view))
     }
     
+    // 현위치로 이동
     func moveCameraToCurrentLoaction(_ coordinate: CLLocationCoordinate2D) {
         let currentPosition = MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude)
         
-//        if let mapView = controller?.getView("mapView") as? KakaoMap {
-//            mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 15, mapView: mapView))
-//        }
+        if let mapView = controller?.getView("mapView") as? KakaoMap {
+            mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 15, mapView: mapView))
+        }
+        createLabelLayer()
     }
     
   
