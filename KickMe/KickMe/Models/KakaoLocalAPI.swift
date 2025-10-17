@@ -64,16 +64,19 @@ final class KakaoLocalAPI {
     
     // 주소(문자열)에서 좌표로 변환
     func geocode(_ query: String, completion: @escaping (Result<CLLocationCoordinate2D, Error>) -> Void) {
+        guard apiKey.isEmpty == false else {
+            return completion(.failure(KakaoGeoError.missingKey))
+        }
         
         guard var component = URLComponents(string: "https://dapi.kakao.com/v2/local/search/address.json") else {
             return completion(.failure(KakaoGeoError.invalidURL))
         }
         component.queryItems = [URLQueryItem(name: "query", value: query)]
-        guard let _ = component.url else {
+        guard let url = component.url else {
             return completion(.failure(KakaoGeoError.invalidURL))
         }
         
-        var request = URLRequest(url: component.url!)
+        var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("KakaoAK \(apiKey)", forHTTPHeaderField: "Authorization")
         
@@ -97,22 +100,31 @@ final class KakaoLocalAPI {
             }
             
             do {
-                //테스트용
-                struct Mini: Decodable {
-                    struct Doc: Decodable { let x: String; let y: String }
+                // 기존 Mini/KakaoAddressResponse 부분 통째로 교체
+                struct Resp: Decodable {
+                    struct Doc: Decodable {
+                        struct XY: Decodable { let x: String; let y: String }
+                        let road_address: XY?
+                        let address: XY?
+                    }
                     let documents: [Doc]
                 }
-                let decoded = try JSONDecoder().decode(KakaoAddressResponse.self, from: data)
-                
-                print("documents.count = ", decoded.documents.count)
-                
+
+                let decoded = try JSONDecoder().decode(Resp.self, from: data)
+
                 guard let first = decoded.documents.first else {
                     return completion(.failure(KakaoGeoError.noResult))
                 }
-                guard let lat = Double(first.y), let lon = Double(first.x) else {
+
+                let xs = first.road_address?.x ?? first.address?.x
+                let ys = first.road_address?.y ?? first.address?.y
+                guard let lonStr = xs, let latStr = ys,
+                      let lon = Double(lonStr), let lat = Double(latStr) else {
                     return completion(.failure(KakaoGeoError.convertFail))
                 }
+
                 completion(.success(CLLocationCoordinate2D(latitude: lat, longitude: lon)))
+
             } catch {
                 print("[Kakao] decode error:", error)
                 print("[Kakao] raw body:", bodyString)

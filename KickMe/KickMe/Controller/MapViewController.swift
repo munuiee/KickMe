@@ -167,7 +167,7 @@ class MapViewController: UIViewController, MapControllerDelegate {
         
         if let coord = lastCoordinate {
             moveCameraToCurrentLocation(coord)
-        } 
+        }
     }
     
     
@@ -408,7 +408,6 @@ extension UIViewController {
         view.endEditing(true)
     }
 }
-
 
 
 
