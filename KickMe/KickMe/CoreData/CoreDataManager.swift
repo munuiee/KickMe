@@ -69,6 +69,20 @@ class CoreDataManager {
             return []
         }
     }
+    /* ---------- 저장된 기록 삭제 ---------- */
+    func deleteAll() {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: "RentalDatas")
+        
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        
+        do {
+            try context.execute(deleteRequest)
+            context.reset()
+            print("모든 기록 삭제 성공")
+        } catch let error as NSError {
+            print("모든 기록 삭제 실패:\(error), \(error.userInfo)")
+        }
+    }
     
     
     /* ---------- 대여 상태 확인 ---------- */
