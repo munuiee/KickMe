@@ -4,9 +4,10 @@ import SnapKit
 import KakaoMapsSDK
 
 class MyPageViewController: UIViewController {
-    /* ---------- 테이블뷰에 추가 될 데이터 배열 ---------- */
-    var usageDatas: [String] = []
-    var kickBoardDatas: [String] = []
+    // CoreData에서 가져온 이용 내역
+    private var rentalHistory: [RentalRecord] = []
+    // 킥보드 번호
+    var kickBoarDatas: [String] = []
     
     /* ---------- UI 요소 ---------- */
     private let myPageLabel: UILabel = {
@@ -94,6 +95,16 @@ class MyPageViewController: UIViewController {
         setConstraints()
 
     }
+    /* ---------- CoreData 최신 데이터 불러오기 ---------- */
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadHistoryData()
+        historyTableView.reloadData()
+        kickBoardTableView.reloadData()
+        updateUseOrNot()
+
+    }
+    
     /* ---------- UI 구성 ---------- */
     func configureUI() {
         view.backgroundColor = .white
@@ -159,12 +170,38 @@ class MyPageViewController: UIViewController {
     @objc
     private func didTappedLogout() {
         print("로그아웃 클릭 됨")
+        logOutAlrert()
+
     }
     
     /* ---------- "회원탈퇴" 버튼 클릭 시 실행(임시) ---------- */
     @objc
     private func didTappedSignOut() {
         print("회원탈퇴 클릭 됨")
+        signOutAlrert()
+    }
+}
+/* ---------- Core 데이터 관련 ---------- */
+extension MyPageViewController {
+    // 데이터 로드
+    private func loadHistoryData() {
+        rentalHistory = CoreDataManager.shared.fetchAllRentHistory()
+        kickBoarDatas = rentalHistory.map { $0.boardNum }
+        let kickBoardDatas = kickBoarDatas
+        print("현재 kickBoardDatas 개수: \(kickBoardDatas.count)")
+    }
+    // 대여 상태 레이블 업데이트
+    private func updateUseOrNot() {
+        let isRented = CoreDataManager.shared.isCurrentlyRented()
+        useOrNotLabel.text = isRented ? "대여 중" : "대여 가능"
+        useOrNotLabel.textColor = isRented ? UIColor(named: "MainColor") : .gray
+    }
+}
+/* ---------- 킥보드 테이블뷰 업데이트 ---------- */
+extension MyPageViewController {
+    func updateBordNum() {
+        loadHistoryData()
+        kickBoardTableView.reloadData()
     }
 }
 
@@ -172,54 +209,96 @@ class MyPageViewController: UIViewController {
 extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
     // 셀 높이 설정
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-            40
-        }
+        40
+    }
     /* ---------- 각 테이블 뷰의 행 개수 ---------- */
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == historyTableView {
-            return usageDatas.count
+            return rentalHistory.count
         } else if tableView == kickBoardTableView {
-            return kickBoardDatas.count
+            return kickBoarDatas.count
         }
         return 0
     }
     /* ---------- 각 테이블 뷰 셀 데이터 연결 ---------- */
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // 이용 내역 테이블뷰 데이터
+        let record = rentalHistory[indexPath.row]
+        
         if tableView == historyTableView {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: HistoryTableViewCell.id, for: indexPath) as?    HistoryTableViewCell else {
                 return UITableViewCell()
             }
-            let usageData = usageDatas[indexPath.row]
+            // 대여 중 / 반납 완료 시 이용 내역 분기
+            
+            let duration = record.rentalTime
+            
+            let usageText = record.isReturned ? "이용 종료" : "이용 중"
+            
+            let usageData = "\(record.startTime) / \(duration) / \(usageText)"
+            
             cell.configureCell(with: usageData)
             return cell
+            
+        // 킥보드 번호 테이블뷰 데이터
         } else if tableView == kickBoardTableView {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: KickBoardTableViewCell.id, for: indexPath) as?    KickBoardTableViewCell else {
                 return UITableViewCell()
             }
-            let kickBoardData = kickBoardDatas[indexPath.row]
-            cell.configureCell(with: kickBoardData)
+            
+            let boardData = kickBoarDatas[indexPath.row]
+            cell.configureCell(with: boardData)
             return cell
         }
+               
         return UITableViewCell()
     }
-    
 }
-/* ---------- 등록 페이지에서 입력된 데이터 추가하는 함수 ---------- */
+
+/* ---------- 알럿기능 추가 ---------- */
 extension MyPageViewController {
-    func updateData(newBoardNum: String, newTimeText: String) {
+    func makeAlert(title: String,
+                   message: String,
+                   cancleAction: ((UIAlertAction) -> Void)? = nil,
+                   checkAction: ((UIAlertAction) -> Void)? = nil,
+                   completion: (() -> Void)? = nil) {
+        let alretVC = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let cancleAction = UIAlertAction(title: "취소", style: .default, handler: cancleAction)
+        alretVC.addAction(cancleAction)
+        let checkAction = UIAlertAction(title: "확인", style: .default, handler: checkAction)
+        alretVC.addAction(checkAction)
         
-        // 이용 내역 추가
-        let now = Date()
-        let nowString = now.dateTime
-        
-        let usageEntry = "\(nowString) - \(newTimeText)"
-        usageDatas.append(usageEntry)
-        
-        // 킥보드 번호 추가
-        kickBoardDatas.append(newBoardNum)
-        
-        historyTableView.reloadData()
-        kickBoardTableView.reloadData()
+        self.present(alretVC, animated: true)
+    }
+    /* ---------- 로그아웃 알럿 ---------- */
+    func logOutAlrert() {
+        self.makeAlert(title: "로그아웃", message: "로그아웃 하시겠습니까?", cancleAction: { _ in
+            }, checkAction: { _ in
+            // "확인" 클릭 시 로그인 화면으로 이동
+            let loginVC = LoginViewController()
+            let rootVC = UINavigationController(rootViewController: loginVC)
+            
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let window = windowScene.windows.first else {
+                return
+            }
+            window.rootViewController = rootVC
+        })
+    }
+    /* ---------- 회원탈퇴 알럿 ---------- */
+    func signOutAlrert() {
+        self.makeAlert(title: "회원 탈퇴", message: "회원 탈퇴 하시겠습니까?", cancleAction: { _ in
+            }, checkAction: { _ in
+            // "확인" 클릭 시 로그인 화면으로 이동
+            let loginVC = LoginViewController()
+            let rootVC = UINavigationController(rootViewController: loginVC)
+            
+            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                  let window = windowScene.windows.first else {
+                return
+            }
+            window.rootViewController = rootVC
+        })
     }
 }
 

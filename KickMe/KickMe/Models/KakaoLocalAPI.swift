@@ -67,6 +67,7 @@ final class KakaoLocalAPI {
         guard apiKey.isEmpty == false else {
             return completion(.failure(KakaoGeoError.missingKey))
         }
+
         
         guard var component = URLComponents(string: "https://dapi.kakao.com/v2/local/search/address.json") else {
             return completion(.failure(KakaoGeoError.invalidURL))

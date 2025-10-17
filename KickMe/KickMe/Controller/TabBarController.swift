@@ -37,11 +37,22 @@ class TabBarController: UITabBarController {
         bar.updateColors(selectedIndex: selectedIndex)
     }
     
-    // 페이지 확인용 임시 코드
+    // "대여/반납" 버튼
     @objc private func openRegisterVC() {
-        selectedIndex = 1
-        (viewControllers?[1] as? UINavigationController)?
-            .popToRootViewController(animated: false)
+        let isRented = CoreDataManager.shared.isCurrentlyRented()
+        
+        if isRented {
+            CoreDataManager.shared.completeRental()
+
+            self.changeMainButton(to: "대여")
+            selectedIndex = 0
+            (viewControllers?[0] as? UINavigationController)?
+                .popToRootViewController(animated: false)
+        } else {
+            selectedIndex = 1
+            (viewControllers?[1] as? UINavigationController)?
+                .popToRootViewController(animated: false)
+        }
         bar.updateColors(selectedIndex: selectedIndex)
     }
     
@@ -78,3 +89,12 @@ class TabBarController: UITabBarController {
     
     
 }
+/* ---------- "등록하기" 버튼에서 호출할 함수 ---------- */
+extension TabBarController {
+    func changeMainButton(to title: String) {
+        if let customTabBar = self.tabBar as? CustomTabBar {
+            customTabBar.setMainButtonTitle(title: title)
+        }
+    }
+}
+

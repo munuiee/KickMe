@@ -168,6 +168,7 @@ class MapViewController: UIViewController, MapControllerDelegate {
         if let coord = lastCoordinate {
             moveCameraToCurrentLocation(coord)
         }
+         
     }
     
     
@@ -262,9 +263,156 @@ class MapViewController: UIViewController, MapControllerDelegate {
               !q.isEmpty else { return }
         addPinForAddress(q)
         print("RETURN!")
+
 }
 
 }
+
+
+
+
+
+
+
+
+/* ---------- 카카오 맵 델리게이트 ---------- */
+
+extension MapViewController: CLLocationManagerDelegate {
+    func getLocationUsagePermission() {
+        self.locationManager.requestWhenInUseAuthorization()
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        switch status {
+        case .authorizedAlways, .authorizedWhenInUse:
+            print("GPS 권한 설정됨")
+        case .restricted, .notDetermined:
+            print("GPS 권한 설정되지 않음")
+            getLocationUsagePermission()
+        case .denied:
+            print("GPS 권한 요청 거부됨")
+            getLocationUsagePermission()
+        default:
+            print("GPS: Default")
+        }
+    }
+    
+    
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: any Error) {
+        print("위치 정보를 가져오는 데 실패했습니다: \(error.localizedDescription)")
+    }
+    
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let location = locations.last else { return }
+        let coord = location.coordinate
+        
+        lastCoordinate = coord
+        
+        
+        if mapReady, !didCenterOnUser {
+            moveCameraToCurrentLocation(coord)
+            didCenterOnUser = true
+        }
+        
+        DispatchQueue.main.async { [weak self] in
+            self?.createPois()
+        }
+ 
+        
+        getKoreanAddress(la: coord.latitude, lo: coord.longitude)
+        
+    }
+    
+    
+    
+    
+    // 마커(핀)
+    func createLabelLayer() {
+        guard let view = controller?.getView("mapView") as? KakaoMap else { return }
+        let manager = view.getLabelManager()
+        
+        if manager.getLabelLayer(layerID: "PoiLayer") != nil { return }
+        
+        let layerOption = LabelLayerOptions(
+            layerID: "PoiLayer",
+            competitionType: .none,
+            competitionUnit: .symbolFirst,
+            orderType: .rank,
+            zOrder: 0
+        )
+         _ = manager.addLabelLayer(option: layerOption)
+    }
+    
+    func registerPerLevelStyle() {
+        guard let map = controller?.getView("mapView") as? KakaoMap else { return }
+        let manager = map.getLabelManager()
+        
+        let iconImage = (UIImage(named: "marker") ?? UIImage(systemName: "mappin")!).withRenderingMode(.alwaysOriginal)
+        let icon = PoiIconStyle(symbol: iconImage, anchorPoint: CGPoint(x: 0.5, y: 1.0))
+
+
+                
+        var styles: [PerLevelPoiStyle] = []
+        for level in 0...20 {
+            styles.append(PerLevelPoiStyle(iconStyle: icon, level: level))
+        }
+        
+        let poiStyle = PoiStyle(styleID: "PerLevelStyle", styles: styles)
+        manager.addPoiStyle(poiStyle)
+    }
+    
+    func createPois() {
+        guard let view = controller?.getView("mapView") as? KakaoMap else { return }
+        let manager = view.getLabelManager()
+        guard let layer = manager.getLabelLayer(layerID: "PoiLayer") else { return }
+        
+        
+        guard let coord = lastCoordinate else { return }
+        let point = MapPoint(longitude: coord.longitude, latitude: coord.latitude)
+        
+        if let poi = userPoi {
+            poi.position = point
+            poi.show()
+            return
+        }
+        
+        let poiOption = PoiOptions(styleID: "PerLevelStyle")
+        poiOption.rank = 0
+        
+        
+        let poi = layer.addPoi(option: poiOption, at: point)
+        poi?.show()
+        userPoi = poi
+        
+    }
+    
+    
+    
+    // 현위치로 이동
+    func moveCameraToCurrentLocation(_ coordinate: CLLocationCoordinate2D) {
+        let currentPosition = MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude)
+        
+        if let mapView = controller?.getView("mapView") as? KakaoMap {
+            mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 15, mapView: mapView))
+        }
+    }
+    
+    
+}
+
+extension UIViewController {
+    func hideKeyboard() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    @objc private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+}
+
+
+
 
 
 

@@ -10,18 +10,20 @@
 		50263FB52E9CCB8900BF2BDF /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 50263FB42E9CCB8900BF2BDF /* SnapKit */; };
 		50322F1F2EA1DA72003E86B3 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = 50322F1E2EA1DA72003E86B3 /* Secrets.plist */; };
 		5032301E2EA21A8E003E86B3 /* Secrets.sample.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5032301D2EA21A8E003E86B3 /* Secrets.sample.plist */; };
-		503230482EA21B1D003E86B3 /* KakaoMapsSDK-SPM-Dynamic in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 50F3C0E02E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		50ACB8052EA093650032A370 /* KakaoMapsSDK-SPM-Dynamic in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 50F3C0E02E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		50F3C0E12E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 50F3C0E02E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		503230492EA21B1D003E86B3 /* Embed Frameworks */ = {
+
+		50ACB8062EA093650032A370 /* Embed Frameworks */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				503230482EA21B1D003E86B3 /* KakaoMapsSDK-SPM-Dynamic in Embed Frameworks */,
+
+				50ACB8052EA093650032A370 /* KakaoMapsSDK-SPM-Dynamic in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -97,7 +99,7 @@
 				50263F982E9CCB3100BF2BDF /* Frameworks */,
 				5032301F2EA21ABE003E86B3 /* Run Script */,
 				50263F992E9CCB3100BF2BDF /* Resources */,
-				503230492EA21B1D003E86B3 /* Embed Frameworks */,
+				50ACB8062EA093650032A370 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
