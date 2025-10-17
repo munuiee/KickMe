@@ -71,6 +71,7 @@ class SignUpViewController: UIViewController {
         textField.font = .systemFont(ofSize: 12)
         textField.textColor = .darkGray
         textField.isSecureTextEntry = true
+        textField.textContentType = .none
         return textField
     }()
     
@@ -150,6 +151,7 @@ class SignUpViewController: UIViewController {
         signUpButton.addTarget(self, action: #selector(didTapSignUp), for: .touchUpInside)
     }
     
+    
     // 회원가입 버튼 동작
     @objc private func didTapSignUp() {
         
@@ -166,10 +168,31 @@ class SignUpViewController: UIViewController {
             present(alert, animated: true)
             return
         }
+        // 비밀번호 8자 미만일 때 경고 알림 (추가)
+        if pw.count < 8 {
+            let alert = UIAlertController(title: "비밀번호 오류", message: "비밀번호는 8자 이상 입력해주세요", preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "확인", style: .default))
+            present(alert, animated: true)
+            return
+        }
+        
+        // UserDefaults에 회원정보 저장
+        UserDefaults.standard.set(name, forKey: "user_name")
+        UserDefaults.standard.set(id, forKey: "user_id")
+        UserDefaults.standard.set(pw, forKey: "user_pw")
+        
+        // 저장된 값 콘솔로 확인
+        print("회원가입 데이터 저장 완료: \(name), \(id), \(pw)")
+        
         
         // 모두 입력했을 때 성공 알림
         let successAlert = UIAlertController(title: "회원가입 완료", message: "회원가입이 성공적으로 완료되었습니다!", preferredStyle: .alert)
-        successAlert.addAction(UIAlertAction(title: "확인", style: .default))
+        
+        successAlert.addAction(UIAlertAction(title: "확인", style: .default, handler:  { _ in
+            // 회원가입 완료 후 로그인 화면으로 돌아가기
+            self.dismiss(animated: true)
+            self.navigationController?.popViewController(animated: true)
+        }))
         present(successAlert, animated: true)
             
         }

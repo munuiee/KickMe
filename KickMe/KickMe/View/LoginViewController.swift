@@ -81,6 +81,16 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
+        // 앱 실행 시 저장된 정보가 있는지 콘솔로 확인(디버깅용)
+        // 완성 후 지울 예정
+        if let savedID = UserDefaults.standard.string(forKey: "user_id"),
+              let savedPW = UserDefaults.standard.string(forKey: "user_pw"),
+              let savedName = UserDefaults.standard.string(forKey: "user_name") {
+               print(" 저장된 회원정보: 이름=\(savedName), ID=\(savedID), PW=\(savedPW)")
+           } else {
+               print(" UserDefaults에 저장된 정보가 없습니다.")
+           }
+        
         // 화면 요소(텍스트 필드, 버튼 등) 배치 메서드 실행
         setupLayout()
         setupActions()

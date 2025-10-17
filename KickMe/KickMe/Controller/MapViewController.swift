@@ -2,8 +2,10 @@ import Foundation
 import UIKit
 import SnapKit
 import KakaoMapsSDK
+import CoreLocation
 
 class MapViewController: UIViewController, MapControllerDelegate {
+
     
     private let myLocation = UIButton()
     private let search = UITextField()
@@ -23,7 +25,7 @@ class MapViewController: UIViewController, MapControllerDelegate {
     private var searchPoi: Poi?
     
     private let kakao = KakaoLocalAPI(apiKey: SecretLoader.kakaoREST())
-    
+
 
     
     
@@ -48,6 +50,10 @@ class MapViewController: UIViewController, MapControllerDelegate {
         configureUI()
         hideKeyboard()
         
+
+        
+       
+
     }
     
     
@@ -154,14 +160,14 @@ class MapViewController: UIViewController, MapControllerDelegate {
         print("OK") //추가 성공. 성공시 추가적으로 수행할 작업을 진행한다.
         mapReady = true
         guard let _ = controller?.getView("mapView") as? KakaoMap else { return }
-        
+
         registerPerLevelStyle()
         createLabelLayer()
         //createPois()
         
         if let coord = lastCoordinate {
             moveCameraToCurrentLocation(coord)
-        }
+        } 
     }
     
     
@@ -256,8 +262,8 @@ class MapViewController: UIViewController, MapControllerDelegate {
               !q.isEmpty else { return }
         addPinForAddress(q)
         print("RETURN!")
-    }
-    
+}
+
 }
 
 

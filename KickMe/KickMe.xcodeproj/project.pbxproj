@@ -13,6 +13,20 @@
 		50F3C0E12E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 50F3C0E02E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		50ACB8062EA093650032A370 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				50ACB8052EA093650032A370 /* KakaoMapsSDK-SPM-Dynamic in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		50263F9B2E9CCB3100BF2BDF /* KickMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KickMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		50322F1E2EA1DA72003E86B3 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
@@ -79,6 +93,7 @@
 				50263F972E9CCB3100BF2BDF /* Sources */,
 				50263F982E9CCB3100BF2BDF /* Frameworks */,
 				50263F992E9CCB3100BF2BDF /* Resources */,
+				50ACB8062EA093650032A370 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -163,6 +178,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2XC69D3R8Y;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "KickMe/Supporting Files/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -190,6 +206,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2XC69D3R8Y;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "KickMe/Supporting Files/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
