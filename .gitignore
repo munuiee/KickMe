@@ -133,4 +133,5 @@ iOSInjectionProject/
 
 # End of https://www.toptal.com/developers/gitignore/api/swift,xcode,macos
 
-Secrets.plist
+KickMe/Secrets.plist
+KickMe/Secrets.sample.plist
