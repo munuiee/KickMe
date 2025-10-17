@@ -224,10 +224,8 @@ extension MapViewController: CLLocationManagerDelegate {
         if let mapView = controller?.getView("mapView") as? KakaoMap {
             mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 15, mapView: mapView))
         }
-
     }
     
-  
 }
 
 

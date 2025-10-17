@@ -133,3 +133,9 @@ class CustomTabBar: UITabBar {
         return super.hitTest(point, with: event)
     }
 }
+/* ---------- "대여"버튼의 타이들 변경을 위한 함수 ---------- */
+extension CustomTabBar {
+    func setMainButtonTitle(title: String) {
+        mainButton.setTitle(title, for: .normal)
+    }
+}
