@@ -8,11 +8,14 @@
 
 /* Begin PBXBuildFile section */
 		50263FB52E9CCB8900BF2BDF /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 50263FB42E9CCB8900BF2BDF /* SnapKit */; };
+		50322F1F2EA1DA72003E86B3 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = 50322F1E2EA1DA72003E86B3 /* Secrets.plist */; };
+		50ACB8052EA093650032A370 /* KakaoMapsSDK-SPM-Dynamic in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 50F3C0E02E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		50F3C0E12E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 50F3C0E02E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		50263F9B2E9CCB3100BF2BDF /* KickMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KickMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		50322F1E2EA1DA72003E86B3 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -52,6 +55,7 @@
 		50263F922E9CCB3100BF2BDF = {
 			isa = PBXGroup;
 			children = (
+				50322F1E2EA1DA72003E86B3 /* Secrets.plist */,
 				50263F9D2E9CCB3100BF2BDF /* KickMe */,
 				50263F9C2E9CCB3100BF2BDF /* Products */,
 			);
@@ -135,6 +139,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50322F1F2EA1DA72003E86B3 /* Secrets.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
