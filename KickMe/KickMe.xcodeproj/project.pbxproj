@@ -8,11 +8,30 @@
 
 /* Begin PBXBuildFile section */
 		50263FB52E9CCB8900BF2BDF /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 50263FB42E9CCB8900BF2BDF /* SnapKit */; };
+		50322F1F2EA1DA72003E86B3 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = 50322F1E2EA1DA72003E86B3 /* Secrets.plist */; };
+		5032301E2EA21A8E003E86B3 /* Secrets.sample.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5032301D2EA21A8E003E86B3 /* Secrets.sample.plist */; };
+		503230482EA21B1D003E86B3 /* KakaoMapsSDK-SPM-Dynamic in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 50F3C0E02E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		50F3C0E12E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 50F3C0E02E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		503230492EA21B1D003E86B3 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				503230482EA21B1D003E86B3 /* KakaoMapsSDK-SPM-Dynamic in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		50263F9B2E9CCB3100BF2BDF /* KickMe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KickMe.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		50322F1E2EA1DA72003E86B3 /* Secrets.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.plist; sourceTree = "<group>"; };
+		5032301D2EA21A8E003E86B3 /* Secrets.sample.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Secrets.sample.plist; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -52,6 +71,8 @@
 		50263F922E9CCB3100BF2BDF = {
 			isa = PBXGroup;
 			children = (
+				5032301D2EA21A8E003E86B3 /* Secrets.sample.plist */,
+				50322F1E2EA1DA72003E86B3 /* Secrets.plist */,
 				50263F9D2E9CCB3100BF2BDF /* KickMe */,
 				50263F9C2E9CCB3100BF2BDF /* Products */,
 			);
@@ -74,7 +95,9 @@
 			buildPhases = (
 				50263F972E9CCB3100BF2BDF /* Sources */,
 				50263F982E9CCB3100BF2BDF /* Frameworks */,
+				5032301F2EA21ABE003E86B3 /* Run Script */,
 				50263F992E9CCB3100BF2BDF /* Resources */,
+				503230492EA21B1D003E86B3 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -135,10 +158,33 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50322F1F2EA1DA72003E86B3 /* Secrets.plist in Resources */,
+				5032301E2EA21A8E003E86B3 /* Secrets.sample.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		5032301F2EA21ABE003E86B3 /* Run Script */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "SECRETS_RELATIVE_PATH=\"Secrets.plist\"\nSRC_PATH=\"${SRCROOT}/Secrets.sample.plist\"\nDST_PATH=\"${SRCROOT}/${SECRETS_RELATIVE_PATH}\"\n\nif [ ! -f \"$DST_PATH\" ]; then\n  if [ -f \"$SRC_PATH\" ]; then\n    echo \"⚠️ Missing $SECRETS_RELATIVE_PATH. Copying from Secrets.sample.plist...\"\n    mkdir -p \"$(dirname \"$DST_PATH\")\"\n    cp \"$SRC_PATH\" \"$DST_PATH\"\n  else\n    echo \"❌ Secrets.sample.plist not found.\"\n    exit 1\n  fi\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		50263F972E9CCB3100BF2BDF /* Sources */ = {
@@ -158,6 +204,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2XC69D3R8Y;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "KickMe/Supporting Files/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -185,6 +232,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2XC69D3R8Y;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "KickMe/Supporting Files/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
