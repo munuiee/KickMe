@@ -10,9 +10,9 @@ struct KakaoAddressResponse: Codable {
 
 // 주소 결과 - 검색된 1개의 모든 정보 (지번/도로명/좌표 포함)
 struct KakaoDocument: Codable {
-    let address: KakaoAddress
+    let address: KakaoAddress?
     let addressName, addressType: String
-    let roadAddress: KakaoRoadAddress
+    let roadAddress: KakaoRoadAddress?
     let x, y: String // x: 경도, y: 위도
 
     enum CodingKeys: String, CodingKey {

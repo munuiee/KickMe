@@ -39,7 +39,7 @@ class RegisterViewController: UIViewController {
         button.backgroundColor = UIColor(named: "MainColor")
         button.setTitle("등록하기", for: .normal)
         button.layer.cornerRadius = 5
-        button.addTarget(self, action: #selector(didmissModalView), for: .touchUpInside)
+        button.addTarget(self, action: #selector(didTappedRegister), for: .touchUpInside)
         return button
     }()
 
@@ -48,7 +48,11 @@ class RegisterViewController: UIViewController {
         configureUI()
         setConstraints()
         createPickerView()
-
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
     }
     /* ---------- UI 구성 ---------- */
     func configureUI() {
@@ -125,34 +129,34 @@ class RegisterViewController: UIViewController {
         }
     }
     
-    /* ---------- "등록하기" 버튼 클릭 시 실행 (함수이름 수정 필요)---------- */
+    /* ---------- "등록하기" 버튼 클릭 시 실행 ---------- */
     @objc
-    private func didmissModalView() {
+    private func didTappedRegister() {
         guard let boardNum = kickBoardTextField.text, !boardNum.isEmpty else { return }
         guard let timeText = timeTextField.text, !timeText.isEmpty else { return }
         
-        // 이용내역 & 킥보드 번호 데이터 전달
+        CoreDataManager.shared.startRental(
+            boardNum: boardNum,
+            rentalTime: timeText)
+        
+        if let tabBarController = self.tabBarController as? TabBarController {
+            tabBarController.changeMainButton(to: "반납")
+        }
+        
+        // 킥보드 번호 데이터 전달
         if let tabBarController = self.tabBarController,
            let viewControllers = tabBarController.viewControllers,
            viewControllers.count > 2,
            
            let myPageNav = viewControllers[2] as? UINavigationController,
            let myPageVC = myPageNav.viewControllers.first(where: { $0 is MyPageViewController }) as? MyPageViewController {
-            myPageVC.updateData(newBoardNum: boardNum, newTimeText: timeText)
-        }
+            myPageVC.updateBordNum()
+           }
 
-        // 탭바 컨트롤러 연결
-        guard let tabBarController = self.tabBarController else { return }
-        
-        let mapTabIndex = 0
-        tabBarController.selectedIndex = mapTabIndex
-        
-        if let mapNav = tabBarController.viewControllers?[mapTabIndex] as? UINavigationController {
-            mapNav.popToRootViewController(animated: true)
-        }
         // 버튼 누르면 텍스트필드 비워짐
         kickBoardTextField.text = ""
         timeTextField.text = ""
+        self.tabBarController?.selectedIndex = 0
     }
 }
 
@@ -175,3 +179,4 @@ extension RegisterViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
 }
+
