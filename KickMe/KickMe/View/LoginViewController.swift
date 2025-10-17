@@ -178,7 +178,42 @@ class LoginViewController: UIViewController {
     // 로그인 버튼 클릭 시 실행
     @objc private func didTapLogin() {
         print("로그인 버튼 눌림")
-        // ✨ 나중에 로그인 기능 연결( UserDefaulets 검증 예정)
+        
+        let enteredID = idTextField.text ?? ""
+        let enteredPW = pwTextField.text ?? ""
+        
+        let savedID = UserDefaults.standard.string(forKey: "user_id")
+        let savedPW = UserDefaults.standard.string(forKey: "user_pw")
+        
+        // 입력값 검사
+        if enteredID.isEmpty || enteredPW.isEmpty {
+            showAlert(title: "입력 오류", message: "아이디와 비밀번호를 모두 입력해주세요.")
+            return
+        }
+        
+        // 저장된 정보가 없을 때
+        guard let id = savedID, let pw = savedPW else {
+            showAlert(title: "로그인 오류", message: "존재하지 않는 아이디입니다.")
+            return
+        }
+        
+        // 아이디 불일치
+        if enteredID != id {
+            showAlert(title: "로그인 오류", message: "존재하지 않는 아이디입니다.")
+        }
+        
+        // 비밀번호 불일치
+        if enteredPW != pw {
+            showAlert(title: "로그인 오류", message: "비밀번호가 틀렸습니다.")
+            return
+        }
+        
+        // 로그인 성공 -> 메인페이지 이동
+        let mainVC = TabBarController()
+        let nav = UINavigationController(rootViewController: mainVC)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+        
     }
     
     @objc private func didTapSignUp() {
@@ -198,5 +233,13 @@ class LoginViewController: UIViewController {
         }
     }
 
+    /* ---------- Alert 헬퍼 메서드 ---------- */
+    
+    private func showAlert(title: String, message: String) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "확인", style: .default))
+        present(alert, animated: true)
+    }
+    
 }
 
