@@ -9,9 +9,9 @@
 /* Begin PBXBuildFile section */
 		50263FB52E9CCB8900BF2BDF /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 50263FB42E9CCB8900BF2BDF /* SnapKit */; };
 		50322F1F2EA1DA72003E86B3 /* Secrets.plist in Resources */ = {isa = PBXBuildFile; fileRef = 50322F1E2EA1DA72003E86B3 /* Secrets.plist */; };
-		5032301E2EA21A8E003E86B3 /* Secrets.sample.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5032301D2EA21A8E003E86B3 /* Secrets.sample.plist */; };
 		503230482EA21B1D003E86B3 /* KakaoMapsSDK-SPM-Dynamic in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 50F3C0E02E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		50F3C0E12E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic in Frameworks */ = {isa = PBXBuildFile; productRef = 50F3C0E02E9FB40300F5A3E1 /* KakaoMapsSDK-SPM-Dynamic */; };
+		690E39F22EA23605005CF8C3 /* Secrets.sample.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5032301D2EA21A8E003E86B3 /* Secrets.sample.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -158,8 +158,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				690E39F22EA23605005CF8C3 /* Secrets.sample.plist in Resources */,
 				50322F1F2EA1DA72003E86B3 /* Secrets.plist in Resources */,
-				5032301E2EA21A8E003E86B3 /* Secrets.sample.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -205,6 +205,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 2XC69D3R8Y;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "KickMe/Supporting Files/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -233,6 +234,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 2XC69D3R8Y;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "KickMe/Supporting Files/Info.plist";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
