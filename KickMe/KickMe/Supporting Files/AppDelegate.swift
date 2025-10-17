@@ -8,7 +8,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-            SDKInitializer.InitSDK(appKey: "e7760255f0b7a73ebf3ba65edfbcfb02")
+            let appKey = SecretLoader.kakaoAppKey()
+            print("🔑 Kakao appKey lenght: ", appKey.count)
+            if appKey.isEmpty {
+                print("Kakao SDK init skipped: appKey is empty")
+            } else {
+                SDKInitializer.InitSDK(appKey: appKey)
+            }
         return true
     }
 

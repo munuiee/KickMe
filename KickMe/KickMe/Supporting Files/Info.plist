@@ -8,8 +8,7 @@
 	<string>위치 권한</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>위치</string>
-	<key>KAKAO_APP_KEY</key>
-	<string>e7760255f0b7a73ebf3ba65edfbcfb02</string>
+
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
