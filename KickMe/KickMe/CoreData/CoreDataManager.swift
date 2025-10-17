@@ -28,7 +28,7 @@ class CoreDataManager {
         // 저장
         do {
             try context.save()
-            print("대여 기록 저장 성공.\(newRental.startTime ?? "저장 실패")")
+            print("대여 기록 저장 성공.\(newRental.startTime ?? "저장 실패"), \(boardNum)")
         } catch {
             print("대여 기록 저장 실패 \(error)")
         }
@@ -44,7 +44,6 @@ class CoreDataManager {
                 return
             }
             
-            rentalToUpdate.rentalTime = String()
             rentalToUpdate.isReturned = true
             
             try context.save()

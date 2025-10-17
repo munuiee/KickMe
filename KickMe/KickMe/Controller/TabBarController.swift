@@ -43,7 +43,7 @@ class TabBarController: UITabBarController {
         
         if isRented {
             CoreDataManager.shared.completeRental()
-            
+
             self.changeMainButton(to: "대여")
             selectedIndex = 0
             (viewControllers?[0] as? UINavigationController)?

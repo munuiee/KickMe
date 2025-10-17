@@ -4,9 +4,10 @@ import SnapKit
 import KakaoMapsSDK
 
 class MyPageViewController: UIViewController {
-    /* ---------- 테이블뷰에 추가 될 데이터 배열 ---------- */
-    var usageDatas: [String] = []
-    var kickBoardDatas: [String] = []
+    // CoreData에서 가져온 이용 내역
+    private var rentalHistory: [RentalRecord] = []
+    // 킥보드 번호
+    var kickBoarDatas: [String] = []
     
     /* ---------- UI 요소 ---------- */
     private let myPageLabel: UILabel = {
@@ -94,6 +95,16 @@ class MyPageViewController: UIViewController {
         setConstraints()
 
     }
+    /* ---------- CoreData 최신 데이터 불러오기 ---------- */
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        loadHistoryData()
+        historyTableView.reloadData()
+        kickBoardTableView.reloadData()
+        updateUseOrNot()
+
+    }
+    
     /* ---------- UI 구성 ---------- */
     func configureUI() {
         view.backgroundColor = .white
@@ -170,61 +181,80 @@ class MyPageViewController: UIViewController {
         signOutAlrert()
     }
 }
+/* ---------- Core 데이터 관련 ---------- */
+extension MyPageViewController {
+    // 데이터 로드
+    private func loadHistoryData() {
+        rentalHistory = CoreDataManager.shared.fetchAllRentHistory()
+        kickBoarDatas = rentalHistory.map { $0.boardNum }
+        let kickBoardDatas = kickBoarDatas
+        print("현재 kickBoardDatas 개수: \(kickBoardDatas.count)")
+    }
+    // 대여 상태 레이블 업데이트
+    private func updateUseOrNot() {
+        let isRented = CoreDataManager.shared.isCurrentlyRented()
+        useOrNotLabel.text = isRented ? "대여 중" : "대여 가능"
+        useOrNotLabel.textColor = isRented ? UIColor(named: "MainColor") : .gray
+    }
+}
+/* ---------- 킥보드 테이블뷰 업데이트 ---------- */
+extension MyPageViewController {
+    func updateBordNum() {
+        loadHistoryData()
+        kickBoardTableView.reloadData()
+    }
+}
 
 /* ---------- 이용내역/등록한 킥보드 테이블 뷰 관련 ---------- */
 extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
     // 셀 높이 설정
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-            40
-        }
+        40
+    }
     /* ---------- 각 테이블 뷰의 행 개수 ---------- */
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if tableView == historyTableView {
-            return usageDatas.count
+            return rentalHistory.count
         } else if tableView == kickBoardTableView {
-            return kickBoardDatas.count
+            return kickBoarDatas.count
         }
         return 0
     }
     /* ---------- 각 테이블 뷰 셀 데이터 연결 ---------- */
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // 이용 내역 테이블뷰 데이터
+        let record = rentalHistory[indexPath.row]
+        
         if tableView == historyTableView {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: HistoryTableViewCell.id, for: indexPath) as?    HistoryTableViewCell else {
                 return UITableViewCell()
             }
-            let usageData = usageDatas[indexPath.row]
+            // 대여 중 / 반납 완료 시 이용 내역 분기
+            
+            let duration = record.rentalTime
+            
+            let usageText = record.isReturned ? "이용 종료" : "이용 중"
+            
+            let usageData = "\(record.startTime) / \(duration) / \(usageText)"
+            
             cell.configureCell(with: usageData)
             return cell
+            
+        // 킥보드 번호 테이블뷰 데이터
         } else if tableView == kickBoardTableView {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: KickBoardTableViewCell.id, for: indexPath) as?    KickBoardTableViewCell else {
                 return UITableViewCell()
             }
-            let kickBoardData = kickBoardDatas[indexPath.row]
-            cell.configureCell(with: kickBoardData)
+            
+            let boardData = kickBoarDatas[indexPath.row]
+            cell.configureCell(with: boardData)
             return cell
         }
+               
         return UITableViewCell()
     }
-    
 }
-/* ---------- 등록 페이지에서 입력된 데이터 추가하는 함수 ---------- */
-extension MyPageViewController {
-    func updateData(newBoardNum: String, newTimeText: String) {
-        
-        // 이용 내역 추가
-        let now = Date()
-        let nowString = now.dateTime
-        
-        let usageEntry = "\(nowString) - \(newTimeText)"
-        usageDatas.append(usageEntry)
-        
-        // 킥보드 번호 추가
-        kickBoardDatas.append(newBoardNum)
-        
-        historyTableView.reloadData()
-        kickBoardTableView.reloadData()
-    }
-}
+
 /* ---------- 알럿기능 추가 ---------- */
 extension MyPageViewController {
     func makeAlert(title: String,

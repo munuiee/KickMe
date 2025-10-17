@@ -143,15 +143,15 @@ class RegisterViewController: UIViewController {
             tabBarController.changeMainButton(to: "반납")
         }
         
-        // 이용내역 & 킥보드 번호 데이터 전달
+        // 킥보드 번호 데이터 전달
         if let tabBarController = self.tabBarController,
            let viewControllers = tabBarController.viewControllers,
            viewControllers.count > 2,
            
            let myPageNav = viewControllers[2] as? UINavigationController,
            let myPageVC = myPageNav.viewControllers.first(where: { $0 is MyPageViewController }) as? MyPageViewController {
-            myPageVC.updateData(newBoardNum: boardNum, newTimeText: timeText)
-        }
+            myPageVC.updateBordNum()
+           }
 
         // 버튼 누르면 텍스트필드 비워짐
         kickBoardTextField.text = ""
