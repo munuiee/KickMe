@@ -4,8 +4,8 @@ import SnapKit
 import KakaoMapsSDK
 import CoreLocation
 
-class MapViewController: UIViewController, MapControllerDelegate {
-
+final class MapViewController: UIViewController {
+    
     
     private let myLocation = UIButton()
     private let search = UITextField()
@@ -15,7 +15,14 @@ class MapViewController: UIViewController, MapControllerDelegate {
     private var mapView: KMViewContainer!
     private var controller: KMController?
     private var locationManager: CLLocationManager!
-    private var lastCoordinate: CLLocationCoordinate2D?
+    private var lastCoordinate: CLLocationCoordinate2D? {
+        didSet {
+            guard mapReady, let c = lastCoordinate else { return }
+            DispatchQueue.main.async { [weak self] in
+                self?.showKickboards(around: c)
+            }
+        }
+    }
     private var mapReady = false
     private var userPoiAdded = false // 현위치 마커 플래그
     private var didCenterOnUser = false // 자동 축소 방지
@@ -24,9 +31,16 @@ class MapViewController: UIViewController, MapControllerDelegate {
     private let geocoder = CLGeocoder()
     private var searchPoi: Poi?
     
+    private let kickLayerID = "KickLayer"
+    private var kickboardStyle = false // 킥보드 스타일 플래그
+    private var kickPOIs: [Poi] = []
+    
+    private var pendingKickCenter: CLLocationCoordinate2D?
+
+    
     private let kakao = KakaoLocalAPI(apiKey: SecretLoader.kakaoREST())
-
-
+    
+    
     
     
     
@@ -50,10 +64,10 @@ class MapViewController: UIViewController, MapControllerDelegate {
         configureUI()
         hideKeyboard()
         
-
         
-       
-
+        
+        
+        
     }
     
     
@@ -111,13 +125,22 @@ class MapViewController: UIViewController, MapControllerDelegate {
             $0.width.height.equalTo(20)
         }
     }
-    
-    
+
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         controller?.activateEngine()
     }
+    
+//    override func viewDidAppear(_ animated: Bool) {
+//        super.viewDidAppear(animated)
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+//            self.mapReady = true
+//            if let c = self.lastCoordinate {
+//                self.showKickboards(around: c)
+//            }
+//        }
+//    }
     
     
     
@@ -160,7 +183,7 @@ class MapViewController: UIViewController, MapControllerDelegate {
         print("OK") //추가 성공. 성공시 추가적으로 수행할 작업을 진행한다.
         mapReady = true
         guard let _ = controller?.getView("mapView") as? KakaoMap else { return }
-
+        
         registerPerLevelStyle()
         createLabelLayer()
         //createPois()
@@ -255,6 +278,8 @@ class MapViewController: UIViewController, MapControllerDelegate {
             searchPoi?.show()
         }
         moveCameraToCurrentLocation(coord)
+        lastCoordinate = coord
+
     }
     
     @objc func onSearchReturn(_ tf: UITextField) {
@@ -262,8 +287,125 @@ class MapViewController: UIViewController, MapControllerDelegate {
               !q.isEmpty else { return }
         addPinForAddress(q)
         print("RETURN!")
-}
+    }
+    
+    /* ---------- 🛴 킥보드 마커 띄우기 ---------- */
+    
+    func requestShowKickboards(around center: CLLocationCoordinate2D) {
+        lastCoordinate = center
+        if mapReady {
+            showKickboards(around: center)      // 준비됐으면 바로 그림
+        } else {
+            pendingKickCenter = center          // 준비 전이면 잠깐 보관
+        }
+    }
 
+    
+    private func kickStyle(on map: KakaoMap) {
+        
+        if self.kickboardStyle { return }
+        
+        let manager = map.getLabelManager()
+        
+        guard let iconImage = (UIImage(named: "marker_small") ?? UIImage(systemName: "mappin.circle")?.withRenderingMode(.alwaysOriginal)) else { return }
+        // guard let iconImage else { return }
+        
+        let icon = PoiIconStyle(symbol: iconImage, anchorPoint: CGPoint(x: 0.5, y: 1.0))
+        
+        var styles: [PerLevelPoiStyle] = (1...20).map {
+            PerLevelPoiStyle(iconStyle: icon, level: $0)
+        }
+        
+        let poiStyle = PoiStyle(
+            styleID: "kickboardStyle",
+            styles: (0...20).map { PerLevelPoiStyle(iconStyle: icon, level: $0)}
+        )
+        
+        
+        manager.addPoiStyle(poiStyle)
+        
+        self.kickboardStyle = true
+    }
+
+
+    
+    private func ensureKickLayer(on map: KakaoMap) -> LabelLayer? {
+       // guard let map = controller?.getView("mapView") as? KakaoMap else { return nil }
+        let manager = map.getLabelManager()
+        if let layer = manager.getLabelLayer(layerID: self.kickLayerID) {
+            layer.visible = true
+            return layer
+        } else {
+            let opt = LabelLayerOptions(
+                layerID: self.kickLayerID,
+                competitionType: .none,
+                competitionUnit: .symbolFirst,
+                orderType: .rank,
+                zOrder: 999
+            )
+            _ = manager.addLabelLayer(option: opt)
+            let layer = manager.getLabelLayer(layerID: self.kickLayerID)
+            layer?.visible = true
+            return layer
+        }
+    }
+    
+    private func kickLocation(_ center: CLLocationCoordinate2D,
+                              radiusM: Double = 50,
+                              count: Int = 3) -> [CLLocationCoordinate2D] {
+        let metersPerDegLat: Double = 111_320 // 위도 1도 차이
+        let metersPerDegLon: Double = metersPerDegLat * cos(center.latitude * .pi / 180)
+        
+        var results: [CLLocationCoordinate2D] = []
+        for _ in 0..<count {
+            let theta = Double.random(in: 0..<(2 * .pi)) // 중심에서 뻗어나가는 방향 각도
+            let r = sqrt(Double.random(in: 0...1)) * radiusM // 중심~점까지의 거리. 가장자리로만 몰리는 것 방지
+            
+            let dLat = (r * sin(theta)) / metersPerDegLat
+            let dLon = (r * cos(theta)) / metersPerDegLon
+            
+            results.append(.init(latitude: center.latitude + dLat,
+                                 longitude: center.longitude + dLon))
+        }
+        return results
+    }
+    
+    private func showKickboards(around center: CLLocationCoordinate2D) {
+     
+        guard let map = controller?.getView("mapView") as? KakaoMap else { return }
+
+        DispatchQueue.main.async {
+            let target = MapPoint(longitude: center.longitude, latitude: center.latitude)
+            if !self.didCenterOnUser {
+                map.moveCamera(CameraUpdate.make(target: target, zoomLevel: 17, mapView: map))
+                self.didCenterOnUser = true
+            }
+            self.kickStyle(on: map)
+            guard let layer = self.ensureKickLayer(on: map) else { return }
+        
+        
+        
+            let coords = self.kickLocation(center, radiusM: 50,  count: 3)
+            
+
+        
+            for (idx, c) in coords.enumerated() {
+                let point = MapPoint(longitude: c.longitude, latitude: c.latitude)
+                let option = PoiOptions(styleID: "kickboardStyle")
+                option.rank = 10 + idx
+                if let poi = layer.addPoi(option: option, at: point) {
+                    poi.show()
+                    
+                }
+            }
+            
+
+        }
+        
+        
+    }
+ 
+    
 }
 
 
@@ -315,7 +457,7 @@ extension MapViewController: CLLocationManagerDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.createPois()
         }
- 
+        
         
         getKoreanAddress(la: coord.latitude, lo: coord.longitude)
         
@@ -338,7 +480,7 @@ extension MapViewController: CLLocationManagerDelegate {
             orderType: .rank,
             zOrder: 0
         )
-         _ = manager.addLabelLayer(option: layerOption)
+        _ = manager.addLabelLayer(option: layerOption)
     }
     
     func registerPerLevelStyle() {
@@ -347,9 +489,9 @@ extension MapViewController: CLLocationManagerDelegate {
         
         let iconImage = (UIImage(named: "marker") ?? UIImage(systemName: "mappin")!).withRenderingMode(.alwaysOriginal)
         let icon = PoiIconStyle(symbol: iconImage, anchorPoint: CGPoint(x: 0.5, y: 1.0))
-
-
-                
+        
+        
+        
         var styles: [PerLevelPoiStyle] = []
         for level in 0...20 {
             styles.append(PerLevelPoiStyle(iconStyle: icon, level: level))
@@ -409,6 +551,16 @@ extension UIViewController {
     }
 }
 
+extension MapViewController: MapControllerDelegate {
+    func onMapReady(_ map: KakaoMap) {
+        mapReady = true
+        print("맵 준비 완료")
+        if let c = pendingKickCenter {
+            pendingKickCenter = nil
+            showKickboards(around: c)
+        }
+    }
+}
 
 
 
