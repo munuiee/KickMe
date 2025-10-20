@@ -4,12 +4,18 @@ import SnapKit
 import KakaoMapsSDK
 import CoreLocation
 
+extension Notification.Name {
+    static let rentalCompleted = Notification.Name("rentalCompleted")
+}
+
 final class MapViewController: UIViewController {
     
     // UI
     private let myLocation = UIButton()
     private let search = UITextField()
     private let iconImage = UIImageView()
+    private let mapContainerView = UIView()
+
     
     
     // 킥보드 표시 모드
@@ -67,6 +73,8 @@ final class MapViewController: UIViewController {
     private var poiByID: [String: Poi] = [:]
     private var layerIDByPoiID: [String: String] = [:]
     
+    private var poiIDForKickNumber: [String: String] = [:]
+    
     
     private let kakao = KakaoLocalAPI(apiKey: SecretLoader.kakaoREST())
     
@@ -78,6 +86,7 @@ final class MapViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
+   
         mapView = KMViewContainer(frame: view.bounds)
         view.addSubview(mapView)
         
@@ -89,11 +98,21 @@ final class MapViewController: UIViewController {
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
         locationManager.startUpdatingLocation()
+
         
         configureUI()
         hideKeyboard()
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(handleRentalCompleted(_:)), name: .rentalCompleted, object: nil)
+
+
     }
     
+    @objc private func handleRentalCompleted(_ note: Notification) {
+        guard let number = note.userInfo?["boardNum"] as? String else { return }
+        markKickAsReturned(kickNumber: number)
+    }
+
     
     /* --------- UI ---------- */
     func configureUI() {
@@ -157,6 +176,23 @@ final class MapViewController: UIViewController {
     }
     
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        let blocker = UIView()
+        blocker.backgroundColor = .clear
+        blocker.isUserInteractionEnabled = false
+        view.addSubview(blocker)
+        blocker.snp.makeConstraints {
+               $0.top.leading.trailing.equalToSuperview()
+               $0.bottom.equalTo(search.snp.bottom).offset(10)
+           }
+        
+        view.bringSubviewToFront(search)
+           view.bringSubviewToFront(iconImage)
+           view.bringSubviewToFront(myLocation)
+    }
+    
     // 엔진 일시정지
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
@@ -187,6 +223,7 @@ final class MapViewController: UIViewController {
         controller?.addView(mapviewInfo)
     }
     
+   
     
     
     
@@ -203,6 +240,10 @@ final class MapViewController: UIViewController {
         if let kakaoMap = controller?.getView("mapView") as? KakaoMap {
             kakaoMap.viewRect = mapView.bounds
         }
+        
+        view.bringSubviewToFront(search)
+        view.bringSubviewToFront(iconImage)
+        view.bringSubviewToFront(myLocation)
     }
     
     
@@ -385,6 +426,7 @@ final class MapViewController: UIViewController {
         
         let opt = PoiOptions(styleID: "kickboardStyleUsing")
         opt.rank = 999
+        opt.clickable = false
         
         if let newPoi = layer.addPoi(option: opt, at: point) {
             newPoi.show()
@@ -393,7 +435,41 @@ final class MapViewController: UIViewController {
             layerIDByPoiID[newPoi.itemID] = layerID
             poiByID.removeValue(forKey: poiID)
             layerIDByPoiID.removeValue(forKey: poiID)
+            
+            poiIDForKickNumber[poiID] = newPoi.itemID
         }
+    }
+    
+    private func markKickAsReturned(kickNumber: String) {
+        let currentPoiID = poiIDForKickNumber[kickNumber] ?? kickNumber
+        
+        guard let map = controller?.getView("mapView") as? KakaoMap,
+              let oldPoi = poiByID[currentPoiID],
+              let layerID = layerIDByPoiID[currentPoiID] else { return }
+        
+        let manager = map.getLabelManager()
+        guard let layer = manager.getLabelLayer(layerID: layerID) else { return }
+        
+        let point = oldPoi.position
+        oldPoi.hide()
+        layer.removePoi(poiID: currentPoiID)
+        poiByID.removeValue(forKey: currentPoiID)
+        layerIDByPoiID.removeValue(forKey: currentPoiID)
+        
+        let opt = PoiOptions(styleID: "kickboardStyle")
+        opt.rank = 50
+        opt.clickable = true
+        
+        if let newPoi = layer.addPoi(option: opt, at: point) {
+            newPoi.show()
+            _ = newPoi.addPoiTappedEventHandler(target: self, handler: MapViewController.didTapKickPoi)
+            
+            poiByID[newPoi.itemID] = newPoi
+            layerIDByPoiID[newPoi.itemID] = layerID
+            
+        }
+        
+        poiIDForKickNumber.removeValue(forKey: kickNumber)
     }
     
     
@@ -721,5 +797,4 @@ extension MapViewController: MapControllerDelegate {
     }
     
 }
-
 

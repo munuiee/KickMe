@@ -44,10 +44,13 @@ class CoreDataManager {
                 return
             }
             
+            let boardNum = rentalToUpdate.boardNum ?? "" // 반납 대상 번호
             rentalToUpdate.isReturned = true
-            
             try context.save()
             print("반납 업데이트 성공")
+            
+            NotificationCenter.default.post(name: .rentalCompleted, object: nil, userInfo: ["boardNum": boardNum])
+            
         } catch {
             print("반납 업데이트 실패 \(error)")
         }

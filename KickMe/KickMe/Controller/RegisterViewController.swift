@@ -196,4 +196,3 @@ extension RegisterViewController: UIPickerViewDelegate, UIPickerViewDataSource {
     }
     
 }
-
