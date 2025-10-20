@@ -7,7 +7,7 @@ class MyPageViewController: UIViewController {
     // CoreData에서 가져온 이용 내역
     private var rentalHistory: [RentalRecord] = []
     // 킥보드 번호
-    var kickBoarDatas: [String] = []
+    var kickBoardDatas: [String] = []
     
     /* ---------- UI 요소 ---------- */
     private let myPageLabel: UILabel = {
@@ -102,6 +102,7 @@ class MyPageViewController: UIViewController {
         historyTableView.reloadData()
         kickBoardTableView.reloadData()
         updateUseOrNot()
+        loadUserData()
 
     }
     
@@ -186,9 +187,8 @@ extension MyPageViewController {
     // 데이터 로드
     private func loadHistoryData() {
         rentalHistory = CoreDataManager.shared.fetchAllRentHistory()
-        kickBoarDatas = rentalHistory.map { $0.boardNum }
-        let kickBoardDatas = kickBoarDatas
-        print("현재 kickBoardDatas 개수: \(kickBoardDatas.count)")
+        kickBoardDatas = rentalHistory.map { $0.boardNum }
+
     }
     // 대여 상태 레이블 업데이트
     private func updateUseOrNot() {
@@ -196,9 +196,31 @@ extension MyPageViewController {
         useOrNotLabel.text = isRented ? "대여 중" : "대여 가능"
         useOrNotLabel.textColor = isRented ? UIColor(named: "MainColor") : .gray
     }
+    
+    // 데이터 삭제
+    private func deleteAllData() {
+        CoreDataManager.shared.deleteAll()
+        
+        UserDefaults.standard.removeObject(forKey: "user_name")
+        UserDefaults.standard.removeObject(forKey: "user_id")
+        UserDefaults.standard.removeObject(forKey: "user_pw")
+        
+        print("모든 데이터 삭제 성공")
+    }
 }
-/* ---------- 킥보드 테이블뷰 업데이트 ---------- */
+
 extension MyPageViewController {
+    /* ---------- 킥보드 테이블뷰 업데이트 ---------- */
+    func loadUserData() {
+        if let userName = UserDefaults.standard.string(forKey: "user_name") {
+            userNameLabel.text = "\(userName)님"
+        } else {
+            userNameLabel.text = "Guest님"
+        }
+    }
+    
+    
+    /* ---------- 킥보드 테이블뷰 업데이트 ---------- */
     func updateBordNum() {
         loadHistoryData()
         kickBoardTableView.reloadData()
@@ -216,7 +238,7 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
         if tableView == historyTableView {
             return rentalHistory.count
         } else if tableView == kickBoardTableView {
-            return kickBoarDatas.count
+            return kickBoardDatas.count
         }
         return 0
     }
@@ -246,7 +268,7 @@ extension MyPageViewController: UITableViewDelegate, UITableViewDataSource {
                 return UITableViewCell()
             }
             
-            let boardData = kickBoarDatas[indexPath.row]
+            let boardData = kickBoardDatas[indexPath.row]
             cell.configureCell(with: boardData)
             return cell
         }
@@ -287,8 +309,12 @@ extension MyPageViewController {
     }
     /* ---------- 회원탈퇴 알럿 ---------- */
     func signOutAlrert() {
-        self.makeAlert(title: "회원 탈퇴", message: "회원 탈퇴 하시겠습니까?", cancleAction: { _ in
-            }, checkAction: { _ in
+        self.makeAlert(title: "회원 탈퇴", message: "모든 기록이 삭제됩니다. 탈퇴 하시겠습니까?", cancleAction: { _ in
+            }, checkAction: { [weak self]_ in
+                guard let self = self else { return }
+                           
+                self.deleteAllData()
+                
             // "확인" 클릭 시 로그인 화면으로 이동
             let loginVC = LoginViewController()
             let rootVC = UINavigationController(rootViewController: loginVC)
