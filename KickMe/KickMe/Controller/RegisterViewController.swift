@@ -47,7 +47,7 @@ class RegisterViewController: UIViewController {
     private lazy var registerButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = UIColor(named: "MainColor")
-        button.setTitle("등록하기", for: .normal)
+        button.setTitle("대여하기", for: .normal)
         button.layer.cornerRadius = 5
         button.addTarget(self, action: #selector(didTappedRegister), for: .touchUpInside)
         return button
@@ -83,7 +83,7 @@ class RegisterViewController: UIViewController {
     func setConstraints() {
         
         kickBoardLabel.snp.makeConstraints {
-            $0.top.equalToSuperview().inset(100)
+            $0.top.equalToSuperview().inset(170)
             $0.leading.equalToSuperview().inset(24)
         }
         kickBoardTextField.snp.makeConstraints {
