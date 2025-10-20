@@ -1,5 +1,9 @@
-
-
+//
+//  LoginViewController.swift
+//  KickMe
+//
+//  Created by 김리하 on 10/17/25.
+//
 
 import UIKit
 import SnapKit
@@ -212,25 +216,21 @@ class LoginViewController: UIViewController {
         let mainVC = TabBarController()
         let nav = UINavigationController(rootViewController: mainVC)
         nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true)
+        present(nav, animated: true) 
+        
         
     }
+
     
-    @objc private func didTapSignUp() {
+@objc private func didTapSignUp() {
         print("회원가입 버튼 눌림")
         let signUpVC = SignUpViewController()
 
-        // 네비게이션 컨트롤러가 없는 경우 -> 모달로 네비게이션 포함해서 띄우기
-        if navigationController == nil {
-            let nav = UINavigationController(rootViewController: signUpVC)
-            nav.modalPresentationStyle = .fullScreen
-            present(nav, animated: true)
-        } else {
-            // 네비게이션 컨트롤러가 있는 경우 -> push로 화면 이동
-            // Back 버튼의 글자는 숨기고 화살표만 보이도록 설정
-            navigationItem.backButtonTitle = ""
-            navigationController?.pushViewController(signUpVC, animated: true)
-        }
+        // 항상 모달 네비게이션으로 띄우기
+        let nav = UINavigationController(rootViewController: signUpVC)
+        nav.modalPresentationStyle = .fullScreen
+        present(nav, animated: true)
+    
     }
 
     /* ---------- Alert 헬퍼 메서드 ---------- */
@@ -242,4 +242,5 @@ class LoginViewController: UIViewController {
     }
     
 }
+
 
