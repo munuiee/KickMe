@@ -63,6 +63,9 @@ final class MapViewController: UIViewController {
     
     // 레이어를 지운 적이 있음을 표시하는 플래그
     private var removedLayers = Set<String>()
+
+    private var poiByID: [String: Poi] = [:]
+    private var layerIDByPoiID: [String: String] = [:]
     
     
     private let kakao = KakaoLocalAPI(apiKey: SecretLoader.kakaoREST())
@@ -326,19 +329,30 @@ final class MapViewController: UIViewController {
         
         let manager = map.getLabelManager()
         
+        
+        
         guard let iconImage = (UIImage(named: "marker_small") ?? UIImage(systemName: "mappin.circle")?.withRenderingMode(.alwaysOriginal)) else { return }
         
         let icon = PoiIconStyle(symbol: iconImage, anchorPoint: CGPoint(x: 0.5, y: 1.0))
         
-        var _: [PerLevelPoiStyle] = (1...20).map {
-            PerLevelPoiStyle(iconStyle: icon, level: $0)
-        }
+        guard let usingImage = (UIImage(named: "marker_using") ?? UIImage(systemName: "mappin.circle")?.withRenderingMode(.alwaysOriginal)) else { return }
+        let using = PoiIconStyle(symbol: usingImage, anchorPoint: CGPoint(x: 0.5, y: 1.0))
         
+//        var _ : [PerLevelPoiStyle] = (1...20).map {
+//            PerLevelPoiStyle(iconStyle: icon, level: $0)
+//        }
+        
+        let iconStyle = PoiStyle(styleID: "kickboardStyle", styles: (0...20).map { PerLevelPoiStyle(iconStyle: icon, level: $0) })
+        let usingStyle = PoiStyle(styleID: "kickboardStyleUsing", styles: (0...20).map { PerLevelPoiStyle(iconStyle: using, level: $0) })
+
+      
         let poiStyle = PoiStyle(
             styleID: "kickboardStyle",
             styles: (0...20).map { PerLevelPoiStyle(iconStyle: icon, level: $0)}
         )
         manager.addPoiStyle(poiStyle)
+        manager.addPoiStyle(iconStyle)
+        manager.addPoiStyle(usingStyle)
         self.kickboardStyle = true
     }
     
@@ -349,7 +363,37 @@ final class MapViewController: UIViewController {
         let number = poi.itemID
         print("킥보드 탭됨 poiID=\(poi.itemID)")
         let registerVC = RegisterViewController(kickNumber: number)
+        registerVC.onRegistered = { [weak self] in
+            self?.markKickAsRegistered(poiID: number)
+            self?.navigationController?.popViewController(animated: true)
+            
+        }
         navigationController?.pushViewController(registerVC, animated: true)
+    }
+    
+    private func markKickAsRegistered(poiID: String) {
+        guard let map = controller?.getView("mapView") as? KakaoMap,
+              let oldPoi = poiByID[poiID],
+              let layerID = layerIDByPoiID[poiID]
+        else { return }
+        
+        let manager = map.getLabelManager()
+        guard let layer = manager.getLabelLayer(layerID: layerID) else { return }
+        
+        let point = oldPoi.position
+        oldPoi.hide()
+        
+        let opt = PoiOptions(styleID: "kickboardStyleUsing")
+        opt.rank = 999
+        
+        if let newPoi = layer.addPoi(option: opt, at: point) {
+            newPoi.show()
+            
+            poiByID[newPoi.itemID] = newPoi
+            layerIDByPoiID[newPoi.itemID] = layerID
+            poiByID.removeValue(forKey: poiID)
+            layerIDByPoiID.removeValue(forKey: poiID)
+        }
     }
     
     
@@ -460,6 +504,9 @@ final class MapViewController: UIViewController {
                     poi.show()
                     ids.insert(poi.itemID)
                     _ = poi.addPoiTappedEventHandler(target: self, handler: MapViewController.didTapKickPoi)
+                    
+                    self.poiByID[poi.itemID] = poi
+                    self.layerIDByPoiID[poi.itemID] = layerID
                 } else {
                     print("addPoi failed at idx \(idx)")
                 }
