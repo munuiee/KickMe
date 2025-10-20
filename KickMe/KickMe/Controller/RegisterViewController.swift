@@ -5,6 +5,7 @@ import UIKit
 
 class RegisterViewController: UIViewController {
     private let kickNumber: String?
+    var onRegistered: (() -> Void)?
     // 픽커뷰에 들어갈 시간 배열
     var hour: [String] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
     
@@ -171,6 +172,8 @@ class RegisterViewController: UIViewController {
         kickBoardTextField.text = ""
         timeTextField.text = ""
         self.tabBarController?.selectedIndex = 0
+        
+        onRegistered?()
     }
 }
 
