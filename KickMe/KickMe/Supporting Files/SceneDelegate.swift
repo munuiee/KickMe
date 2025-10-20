@@ -12,17 +12,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // UserDefaults에서 로그인 상태 확인
         let isLoggedIn = UserDefaults.standard.bool(forKey: "isLoggedIn")
         
-        if isLoggedIn {
-            // 이미 로그인 된 상태 -> 바로 TabBarController로 이동
-            let mainVC = TabBarController()
-            let nav = UINavigationController(rootViewController: mainVC)
-            window.rootViewController = nav
-        } else {
-            // 로그인 안 된 상태 -> 로그인 화면으로 이동
-            let loginVC = LoginViewController()
-            let nav = UINavigationController(rootViewController: loginVC)
-            window.rootViewController = nav
-        }
+       
+        let loginVC = LoginViewController()
+        let nav = UINavigationController(rootViewController: loginVC)
+        window.rootViewController = nav
         
 
         window.makeKeyAndVisible()
