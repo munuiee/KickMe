@@ -106,6 +106,13 @@ class SignUpViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         
+        if let savedID = UserDefaults.standard.string(forKey: "user_id"),
+           let savedPW = UserDefaults.standard.string(forKey: "user_pw") {
+            idTextField.text = savedID
+            passwordTextField.text = savedPW
+        }
+        
+        
         // 밑줄 색상
         [nameUnderLine, idUnderLine, passwordUnderLine].forEach { $0.backgroundColor = .lightGray
         }
