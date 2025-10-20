@@ -213,10 +213,13 @@ class LoginViewController: UIViewController {
         }
         
         // 로그인 성공 -> 메인페이지 이동
+        UserDefaults.standard.set(true, forKey: "isLoggedIn")
         let mainVC = TabBarController()
         let nav = UINavigationController(rootViewController: mainVC)
         nav.modalPresentationStyle = .fullScreen
         present(nav, animated: true) 
+        
+        
         
         
     }
