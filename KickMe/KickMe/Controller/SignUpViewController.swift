@@ -99,7 +99,7 @@ class SignUpViewController: UIViewController {
         result.append(star)
         return result
     }
-
+    
     
     
     override func viewDidLoad() {
@@ -115,7 +115,7 @@ class SignUpViewController: UIViewController {
         nameLabel.attributedText      = requiredLabel("이름", font: labelFont)
         idLabel.attributedText        = requiredLabel("아이디", font: labelFont)
         passwordLabel.attributedText  = requiredLabel("비밀번호", font: labelFont)
-
+        
         
         // 수동으로 뒤로가기 화살표 버튼 추가
         navigationItem.leftBarButtonItem = UIBarButtonItem(
@@ -125,7 +125,7 @@ class SignUpViewController: UIViewController {
             action: #selector(didTapBack)
         )
         navigationController?.navigationBar.tintColor = .black
-
+        
         
         
         // UI 및 버튼 동작 연결
@@ -134,9 +134,10 @@ class SignUpViewController: UIViewController {
     }
     
     @objc private func didTapBack() {
-        dismiss(animated: true)
+        // 회원가입은 모달 네비게이션으로 열렸으므로 그 컨테이너를 닫음
+        navigationController?.dismiss(animated: true)
     }
-
+    
     
     
     override func viewWillAppear(_ animated: Bool) {
@@ -188,95 +189,93 @@ class SignUpViewController: UIViewController {
         // 모두 입력했을 때 성공 알림
         let successAlert = UIAlertController(title: "회원가입 완료", message: "회원가입이 성공적으로 완료되었습니다!", preferredStyle: .alert)
         
-        successAlert.addAction(UIAlertAction(title: "확인", style: .default, handler:  { _ in
-            // 회원가입 완료 후 로그인 화면으로 돌아가기
-            self.dismiss(animated: true)
-            self.navigationController?.popViewController(animated: true)
+        successAlert.addAction(UIAlertAction(title: "확인", style: .default, handler: { _ in
+            // Alert가 내려간 다음에 모달 네비게이션을 닫는다 (충돌 방지)
+            DispatchQueue.main.async {
+                self.navigationController?.dismiss(animated: true)
+            }
         }))
         present(successAlert, animated: true)
+    }
+        
+        /* ---------- UI 오토레이아웃 ---------- */
+        private func setupLayout() {
+            [
+                titleLabel,
+                nameLabel, nameTextField, nameUnderLine, idLabel, idTextField, idUnderLine, passwordLabel, passwordTextField,passwordUnderLine, signUpButton
+            ].forEach { view.addSubview($0) }
+            
+            // 맨 위에 "회원가입"
+            titleLabel.snp.makeConstraints {
+                $0.top.equalTo(view.safeAreaLayoutGuide).offset(30)
+                $0.leading.equalToSuperview().offset(30)
+            }
+            
+            // "이름"
+            nameLabel.snp.makeConstraints {
+                $0.top.equalTo(titleLabel.snp.bottom).offset(40)
+                $0.leading.equalToSuperview().offset(30)
+            }
+            
+            // "성함을 입력해주세요."
+            nameTextField.snp.makeConstraints {
+                $0.top.equalTo(nameLabel.snp.bottom).offset(8)
+                $0.leading.equalTo(nameLabel)
+                $0.trailing.equalToSuperview().offset(-30)
+                $0.height.equalTo(35)
+            }
+            
+            //
+            nameUnderLine.snp.makeConstraints {
+                $0.top.equalTo(nameTextField.snp.bottom).offset(4)
+                $0.leading.trailing.equalTo(nameTextField)
+                $0.height.equalTo(1)
+            }
+            
+            // "아이디"
+            idLabel.snp.makeConstraints {
+                $0.top.equalTo(nameUnderLine.snp.bottom).offset(20)
+                $0.leading.equalTo(nameLabel)
+            }
+            
+            // "등록하실 아이디를 입력해주세요."
+            idTextField.snp.makeConstraints {
+                $0.top.equalTo(idLabel.snp.bottom).offset(8)
+                $0.leading.trailing.height.equalTo(nameTextField)
+            }
+            
+            idUnderLine.snp.makeConstraints {
+                $0.top.equalTo(idTextField.snp.bottom).offset(2)
+                $0.leading.trailing.equalTo(idTextField)
+                $0.height.equalTo(1)
+            }
+            
+            // "비밀번호"
+            passwordLabel.snp.makeConstraints {
+                $0.top.equalTo(idUnderLine.snp.bottom).offset(20)
+                $0.leading.equalTo(idLabel)
+            }
+            
+            // "영어, 숫자 포함 8자 이상 입력해주세요."
+            passwordTextField.snp.makeConstraints {
+                $0.top.equalTo(passwordLabel.snp.bottom).offset(4)
+                $0.leading.trailing.height.equalTo(nameTextField)
+            }
+            
+            passwordUnderLine.snp.makeConstraints {
+                $0.top.equalTo(passwordTextField.snp.bottom).offset(4)
+                $0.leading.trailing.equalTo(passwordTextField)
+                $0.height.equalTo(1)
+            }
+            
+            // 회원가입 버튼
+            signUpButton.snp.makeConstraints {
+                $0.top.equalTo(passwordUnderLine.snp.bottom).offset(50)
+                $0.centerX.equalToSuperview()
+                $0.width.equalTo(200)
+                $0.height.equalTo(50)
+            }
             
         }
-        
-    
-    
-    
-    /* ---------- UI 오토레이아웃 ---------- */
-    private func setupLayout() {
-        [
-            titleLabel,
-            nameLabel, nameTextField, nameUnderLine, idLabel, idTextField, idUnderLine, passwordLabel, passwordTextField,passwordUnderLine, signUpButton
-        ].forEach { view.addSubview($0) }
-        
-        // 맨 위에 "회원가입"
-        titleLabel.snp.makeConstraints {
-            $0.top.equalTo(view.safeAreaLayoutGuide).offset(30)
-            $0.leading.equalToSuperview().offset(30)
-        }
-        
-        // "이름"
-        nameLabel.snp.makeConstraints {
-            $0.top.equalTo(titleLabel.snp.bottom).offset(40)
-            $0.leading.equalToSuperview().offset(30)
-        }
-        
-        // "성함을 입력해주세요."
-        nameTextField.snp.makeConstraints {
-            $0.top.equalTo(nameLabel.snp.bottom).offset(8)
-            $0.leading.equalTo(nameLabel)
-            $0.trailing.equalToSuperview().offset(-30)
-            $0.height.equalTo(35)
-        }
-        
-        //
-        nameUnderLine.snp.makeConstraints {
-            $0.top.equalTo(nameTextField.snp.bottom).offset(4)
-            $0.leading.trailing.equalTo(nameTextField)
-            $0.height.equalTo(1)
-        }
-        
-        // "아이디"
-        idLabel.snp.makeConstraints {
-            $0.top.equalTo(nameUnderLine.snp.bottom).offset(20)
-            $0.leading.equalTo(nameLabel)
-        }
-        
-        // "등록하실 아이디를 입력해주세요."
-        idTextField.snp.makeConstraints {
-            $0.top.equalTo(idLabel.snp.bottom).offset(8)
-            $0.leading.trailing.height.equalTo(nameTextField)
-        }
-        
-        idUnderLine.snp.makeConstraints {
-            $0.top.equalTo(idTextField.snp.bottom).offset(2)
-            $0.leading.trailing.equalTo(idTextField)
-            $0.height.equalTo(1)
-        }
-        
-        // "비밀번호"
-        passwordLabel.snp.makeConstraints {
-            $0.top.equalTo(idUnderLine.snp.bottom).offset(20)
-            $0.leading.equalTo(idLabel)
-        }
-        
-        // "영어, 숫자 포함 8자 이상 입력해주세요."
-        passwordTextField.snp.makeConstraints {
-            $0.top.equalTo(passwordLabel.snp.bottom).offset(4)
-            $0.leading.trailing.height.equalTo(nameTextField)
-        }
-        
-        passwordUnderLine.snp.makeConstraints {
-            $0.top.equalTo(passwordTextField.snp.bottom).offset(4)
-            $0.leading.trailing.equalTo(passwordTextField)
-            $0.height.equalTo(1)
-        }
-        
-        // 회원가입 버튼
-        signUpButton.snp.makeConstraints {
-            $0.top.equalTo(passwordUnderLine.snp.bottom).offset(50)
-            $0.centerX.equalToSuperview()
-            $0.width.equalTo(200)
-            $0.height.equalTo(50)
-        }
-        
     }
-}
+
