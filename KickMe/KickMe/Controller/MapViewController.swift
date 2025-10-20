@@ -6,11 +6,13 @@ import CoreLocation
 
 final class MapViewController: UIViewController {
     
-    
+    // UI
     private let myLocation = UIButton()
     private let search = UITextField()
     private let iconImage = UIImageView()
     
+    
+    // 킥보드 표시 모드
     private enum KickMode { case user, search }
     private var kickMode: KickMode = .user
     
@@ -19,6 +21,8 @@ final class MapViewController: UIViewController {
     private var mapView: KMViewContainer!
     private var controller: KMController?
     private var locationManager: CLLocationManager!
+    
+    // 최근 좌표
     private var lastCoordinate: CLLocationCoordinate2D? {
         didSet {
             guard mapReady, let c = lastCoordinate else { return }
@@ -33,29 +37,24 @@ final class MapViewController: UIViewController {
             }
         }
     }
-    private var mapReady = false
+    
+    
+    private var mapReady = false // 맵 뷰 준비 완료 플래그
     private var userPoiAdded = false // 현위치 마커 플래그
     private var didCenterOnUser = false // 자동 축소 방지
-    private var userPoi: Poi?
+    private var userPoi: Poi? // 현위치 캐시
+    private var searchPoi: Poi? // 검색 마커 캐시
+    
     
     private let geocoder = CLGeocoder()
-    private var searchPoi: Poi?
     
     private let kickLayerID = "KickLayer"
     private var kickboardStyle = false // 킥보드 스타일 플래그
-    private var kickPOIs: [Poi] = []
     
     private var pendingKickCenter: CLLocationCoordinate2D?
     
-    // 현재 표시 중인 킥보드 POI들의 ID 추적
-    private var kickPoiIDs: [String] = []
-    private var lastPlacementKey: String?
-    private var isPlacingKicks = false
-    private var lastKickKey: String?
-    private var lastKickCoords: [CLLocationCoordinate2D] = []
     
     private var kickPoiIDsByLayer: [String: Set<String>] = [:]
-    
     private var userKickLayerID = "UserKickLayer"
     private var searchKickLayerID = "SearchKickLayer"
     
@@ -64,7 +63,6 @@ final class MapViewController: UIViewController {
     
     // 레이어를 지운 적이 있음을 표시하는 플래그
     private var removedLayers = Set<String>()
-    
     
     
     private let kakao = KakaoLocalAPI(apiKey: SecretLoader.kakaoREST())
@@ -84,7 +82,6 @@ final class MapViewController: UIViewController {
         controller?.delegate = self
         controller?.prepareEngine()
         
-        
         locationManager = CLLocationManager()
         locationManager.delegate = self
         locationManager.requestWhenInUseAuthorization()
@@ -92,11 +89,6 @@ final class MapViewController: UIViewController {
         
         configureUI()
         hideKeyboard()
-        
-        
-        
-        
-        
     }
     
     
@@ -138,7 +130,6 @@ final class MapViewController: UIViewController {
         
         
         search.snp.makeConstraints {
-            $0.width.equalTo(400)
             $0.height.equalTo(40)
             $0.top.equalToSuperview().inset(100)
             $0.leading.trailing.equalToSuperview().inset(20)
@@ -156,24 +147,14 @@ final class MapViewController: UIViewController {
     }
     
     
+    // 엔진 활성
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         controller?.activateEngine()
     }
     
-    //    override func viewDidAppear(_ animated: Bool) {
-    //        super.viewDidAppear(animated)
-    //        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-    //            self.mapReady = true
-    //            if let c = self.lastCoordinate {
-    //                self.showKickboards(around: c)
-    //            }
-    //        }
-    //    }
     
-    
-    
-    // 화면 떠날 땐 일시정지
+    // 엔진 일시정지
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         controller?.pauseEngine()
@@ -192,7 +173,7 @@ final class MapViewController: UIViewController {
     
     
     func addViews() {
-        // 위도, 경도
+        // 초기 좌표
         let defaultPosition = MapPoint(longitude: 127.108678, latitude: 37.402001)
         let mapviewInfo = MapviewInfo(
             viewName: "mapView",
@@ -203,33 +184,6 @@ final class MapViewController: UIViewController {
         controller?.addView(mapviewInfo)
     }
     
-    
-    
-    
-    
-    //addView 성공 이벤트 delegate. 추가적으로 수행할 작업을 진행한다.
-    func addViewSucceeded(_ viewName: String, viewInfoName: String) {
-        print("OK") //추가 성공. 성공시 추가적으로 수행할 작업을 진행한다.
-        mapReady = true
-        guard let _ = controller?.getView("mapView") as? KakaoMap else { return }
-        
-        registerPerLevelStyle()
-        createLabelLayer()
-        //createPois()
-        
-        if let coord = lastCoordinate {
-            moveCameraToCurrentLocation(coord)
-        }
-    }
-    
-    
-    
-    
-    
-    //addView 실패 이벤트 delegate. 실패에 대한 오류 처리를 진행한다.
-    func addViewFailed(_ viewName: String, viewInfoName: String) {
-        print("Failed")
-    }
     
     
     
@@ -248,9 +202,11 @@ final class MapViewController: UIViewController {
         }
     }
     
+    
+    /* ---------- 좌표를 주소로 변환 ---------- */
     func getKoreanAddress(la: Double, lo: Double) {
         let location = CLLocation(latitude: la, longitude: lo)
-        let geocoder = CLGeocoder()
+        // let geocoder = CLGeocoder()
         geocoder.reverseGeocodeLocation(location, preferredLocale: Locale(identifier: "ko_KR")) { (placemarks, error) in
             if let error = error {
                 print("주소 변환 실패: \(error)")
@@ -263,9 +219,14 @@ final class MapViewController: UIViewController {
         }
     }
     
+    
+    
+    
+    /* ---------- 버튼 액션 ---------- */
     @objc private func buttonClicked() {
         print("버튼 클릭됨!")
-        guard let coordinate = locationManager.location?.coordinate else {
+        let coordinate = locationManager.location?.coordinate ?? lastCoordinate
+        guard let coordinate else {
             print("위치 정보를 아직 못 받았어요 😢")
             return
         }
@@ -294,6 +255,7 @@ final class MapViewController: UIViewController {
         }
     }
     
+    
     func dropSearchPinAndGo(to coord: CLLocationCoordinate2D, title: String) {
         guard let map = controller?.getView("mapView") as? KakaoMap else { return }
         let manager = map.getLabelManager()
@@ -310,14 +272,15 @@ final class MapViewController: UIViewController {
             searchPoi = layer.addPoi(option: opt, at: point)
             searchPoi?.show()
         }
-        
         moveCameraToCurrentLocation(coord)
-        lastCoordinate = coord
         kickMode = .search
+        lastCoordinate = coord
+        
         hideKickboards(layerID: userKickLayerID)
         showKickboardsAroundSearchLocation(coord)
-        
     }
+    
+    
     
     @objc func onSearchReturn(_ tf: UITextField) {
         guard let q = tf.text?.trimmingCharacters(in: .whitespacesAndNewlines),
@@ -326,11 +289,13 @@ final class MapViewController: UIViewController {
         print("RETURN!")
     }
     
+    
+    
+    
     /* ---------- 🛴 킥보드 마커 띄우기 ---------- */
     private func placementKey(for coord: CLLocationCoordinate2D) -> String {
-        // 약 100m 그리드로 라운딩해서 같은 구역이면 같은 키를 만들기
-        let metersPerDegLat: Double = 111_320
-        let metersPerDegLon: Double = metersPerDegLat * cos(coord.latitude * .pi / 180)
+        let metersPerDegLat: Double = 111_320 // 위도 기준 1도
+        let metersPerDegLon: Double = metersPerDegLat * cos(coord.latitude * .pi / 180) // 경도 기준 1도
         
         func roundTo100m(_ meters: Double) -> Double { (meters / 100.0).rounded() * 100.0 }
         
@@ -340,6 +305,7 @@ final class MapViewController: UIViewController {
     }
     
     
+    // 마커 주변 킥보드 띄우기
     func requestShowKickboards(around center: CLLocationCoordinate2D, isSearch: Bool) {
         lastCoordinate = center
         if mapReady {
@@ -349,7 +315,7 @@ final class MapViewController: UIViewController {
                 showKickboardsAroundUser(center)
             }
         } else {
-            pendingKickCenter = center          // 준비 전이면 잠깐 보관
+            pendingKickCenter = center // 준비 전이면 잠깐 보관
         }
     }
     
@@ -361,7 +327,6 @@ final class MapViewController: UIViewController {
         let manager = map.getLabelManager()
         
         guard let iconImage = (UIImage(named: "marker_small") ?? UIImage(systemName: "mappin.circle")?.withRenderingMode(.alwaysOriginal)) else { return }
-        // guard let iconImage else { return }
         
         let icon = PoiIconStyle(symbol: iconImage, anchorPoint: CGPoint(x: 0.5, y: 1.0))
         
@@ -373,17 +338,17 @@ final class MapViewController: UIViewController {
             styleID: "kickboardStyle",
             styles: (0...20).map { PerLevelPoiStyle(iconStyle: icon, level: $0)}
         )
-        
-        
         manager.addPoiStyle(poiStyle)
-        
         self.kickboardStyle = true
     }
     
+    
+    // 킥보드 탭 이벤트 -> 등록 페이지로 이동
     func didTapKickPoi(_ param: PoiInteractionEventParam) {
         let poi = param.poiItem
+        let number = poi.itemID
         print("킥보드 탭됨 poiID=\(poi.itemID)")
-        let registerVC = RegisterViewController()
+        let registerVC = RegisterViewController(kickNumber: number)
         navigationController?.pushViewController(registerVC, animated: true)
     }
     
@@ -402,7 +367,6 @@ final class MapViewController: UIViewController {
             orderType: .rank,
             zOrder: 999
         )
-        
         _ = manager.addLabelLayer(option: opt)
         let layer = manager.getLabelLayer(layerID: layerID)
         layer?.visible = true
@@ -411,12 +375,13 @@ final class MapViewController: UIViewController {
     }
     
     
+    
     private func clearKickboards(from layer: KakaoMapsSDK.LabelLayer, layerID: String) {
-        let ids = kickPoiIDsByLayer[layerID] ?? []
+        let ids = kickPoiIDsByLayer[layerID] ?? Set<String>()
         for id in ids {
             layer.removePoi(poiID: id)
         }
-        kickPoiIDsByLayer[layerID] = []
+        kickPoiIDsByLayer[layerID] = Set<String>()
     }
     
     
@@ -441,12 +406,14 @@ final class MapViewController: UIViewController {
         return results
     }
     
+    
+    
     private func showKickboards(around center: CLLocationCoordinate2D, layerID: String = "UserKickLayer", moveCamera: Bool = false) {
         
         guard let map = controller?.getView("mapView") as? KakaoMap else { return }
         
         DispatchQueue.main.async {
-            let target = MapPoint(longitude: center.longitude, latitude: center.latitude)
+            _ = MapPoint(longitude: center.longitude, latitude: center.latitude)
             if moveCamera {
                 let target = MapPoint(longitude: center.longitude, latitude: center.latitude)
                 map.moveCamera(CameraUpdate.make(target: target, zoomLevel: 17, mapView: map))
@@ -460,13 +427,11 @@ final class MapViewController: UIViewController {
             
             if self.lastKickKeyByLayer[layerID] == key,
                let ids = self.kickPoiIDsByLayer[layerID],
-               !ids.isEmpty,
-               !self.removedLayers.contains(layerID) {
+               !ids.isEmpty {
                 return
             }
             
             self.clearKickboards(from: layer, layerID: layerID)
-            // let coords = self.kickLocation(center, radiusM: 500,  count: 4)
             let coords: [CLLocationCoordinate2D]
             
             if self.lastKickKeyByLayer[layerID] == key,
@@ -474,7 +439,7 @@ final class MapViewController: UIViewController {
                !cached.isEmpty {
                 coords = cached
             } else {
-                let generated = self.kickLocation(center, radiusM: 500, count: 4)
+                let generated = self.kickLocation(center, radiusM: 500, count: 10)
                 self.lastKickKeyByLayer[layerID] = key
                 self.lastKickCoordsByLayer[layerID] = generated
                 coords = generated
@@ -482,10 +447,9 @@ final class MapViewController: UIViewController {
             
             
             
-            var ids = self.kickPoiIDsByLayer[layerID] ?? []
+            var ids = self.kickPoiIDsByLayer[layerID] ?? Set<String>()
             for (idx, c) in coords.enumerated() {
                 let point = MapPoint(longitude: c.longitude, latitude: c.latitude)
-                let poiID = "\(layerID)-kick-\(key)-\(idx)"
                 let option = PoiOptions(styleID: "kickboardStyle")
                 option.rank = 10 + idx
                 
@@ -494,7 +458,7 @@ final class MapViewController: UIViewController {
                 
                 if let poi = layer.addPoi(option: option, at: point) {
                     poi.show()
-                    ids.insert(poiID)
+                    ids.insert(poi.itemID)
                     _ = poi.addPoiTappedEventHandler(target: self, handler: MapViewController.didTapKickPoi)
                 } else {
                     print("addPoi failed at idx \(idx)")
@@ -509,13 +473,13 @@ final class MapViewController: UIViewController {
         
     }
     
-    // ✅ 현위치 모드: 검색 레이어 숨기고, 현위치 레이어만 그림
+    // 현위치 모드: 검색 레이어 숨기고, 현위치 레이어만 그림
     func showKickboardsAroundUser(_ coord: CLLocationCoordinate2D) {
         hideKickboards(layerID: searchKickLayerID)
         showKickboards(around: coord, layerID: userKickLayerID, moveCamera: false)
     }
     
-    // ✅ 검색 모드: 현위치 레이어 숨기고, 검색 레이어만 그림
+    // 검색 모드: 현위치 레이어 숨기고, 검색 레이어만 그림
     func showKickboardsAroundSearchLocation(_ coord: CLLocationCoordinate2D) {
         hideKickboards(layerID: userKickLayerID)
         showKickboards(around: coord, layerID: searchKickLayerID, moveCamera: true)
@@ -525,13 +489,12 @@ final class MapViewController: UIViewController {
     private func hideKickboards(layerID: String) {
         guard let map = controller?.getView("mapView") as? KakaoMap else { return }
         let manager = map.getLabelManager()
-        if manager.getLabelLayer(layerID: layerID) != nil {
-            manager.removeLabelLayer(layerID: layerID)
+        if let layer = manager.getLabelLayer(layerID: layerID) {
+            layer.visible = false
         }
-        removedLayers.insert(layerID)
     }
     
-    
+
     
     
     
@@ -547,6 +510,8 @@ final class MapViewController: UIViewController {
 /* ---------- 카카오 맵 델리게이트 ---------- */
 
 extension MapViewController: CLLocationManagerDelegate {
+    
+
     func getLocationUsagePermission() {
         self.locationManager.requestWhenInUseAuthorization()
     }
@@ -662,7 +627,7 @@ extension MapViewController: CLLocationManagerDelegate {
         let currentPosition = MapPoint(longitude: coordinate.longitude, latitude: coordinate.latitude)
         
         if let mapView = controller?.getView("mapView") as? KakaoMap {
-            mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 15, mapView: mapView))
+            mapView.moveCamera(CameraUpdate.make(target: currentPosition, zoomLevel: 17, mapView: mapView))
         }
     }
     
@@ -682,13 +647,32 @@ extension UIViewController {
 
 extension MapViewController: MapControllerDelegate {
     func onMapReady(_ map: KakaoMap) {
-        mapReady = true
+        // mapReady = true
         print("맵 준비 완료")
-        if let c = pendingKickCenter {
+        addViews()
+    }
+    
+    //addView 성공 이벤트 delegate. 추가적으로 수행할 작업을 진행한다.
+    func addViewSucceeded(_ viewName: String, viewInfoName: String) {
+        print("OK") //추가 성공. 성공시 추가적으로 수행할 작업을 진행한다.
+        mapReady = true
+        guard let _ = controller?.getView("mapView") as? KakaoMap else { return }
+        
+        registerPerLevelStyle()
+        createLabelLayer()
+        
+        if let coord = pendingKickCenter ?? lastCoordinate {
             pendingKickCenter = nil
-            showKickboards(around: c)
+            moveCameraToCurrentLocation(coord)
         }
     }
+ 
+    
+    //addView 실패 이벤트 delegate. 실패에 대한 오류 처리를 진행한다.
+    func addViewFailed(_ viewName: String, viewInfoName: String) {
+        print("맵 뷰 추가 실패 ‼️")
+    }
+    
 }
 
 
