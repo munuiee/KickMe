@@ -1,9 +1,3 @@
-//
-//  SignUpViewController.swift
-//  KickMe
-//
-//  Created by 김리하 on 10/15/25.
-//
 
 import UIKit
 import SnapKit
