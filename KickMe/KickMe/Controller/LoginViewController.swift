@@ -1,10 +1,3 @@
-//
-//  LoginViewController.swift
-//  KickMe
-//
-//  Created by 김리하 on 10/17/25.
-//
-
 import UIKit
 import SnapKit
 
@@ -60,6 +53,7 @@ class LoginViewController: UIViewController {
     private let idUnderLine = UIView()
     private let pwUnderLine = UIView()
     
+    
     // 로그인 버튼
     private let loginButton: UIButton = {
         let button = UIButton(type: .system)
@@ -69,6 +63,7 @@ class LoginViewController: UIViewController {
         button.layer.cornerRadius = 6
         return button
     }()
+    
     
     // 회원가입 버튼
     private let signUpButton: UIButton = {
@@ -80,6 +75,7 @@ class LoginViewController: UIViewController {
         button.layer.cornerRadius = 6
         return button
     }()
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -99,7 +95,12 @@ class LoginViewController: UIViewController {
         setupActions()
         
     }
+    
+    
+    
+    
     /* ---------- UI 오토레이아웃 ---------- */
+    
     private func setupLayout() {
         [titleLabel, idLabel, idTextField, idUnderLine, pwLabel, pwTextField, pwUnderLine, loginButton, signUpButton].forEach { view.addSubview($0) }
         
@@ -171,12 +172,17 @@ class LoginViewController: UIViewController {
         }
     }
     
+    
+    
     /* ---------- UIButton 구현 ---------- */
+    
     private func setupActions() {
         // 버튼과 함수 연결
         loginButton.addTarget(self, action: #selector(didTapLogin), for: .touchUpInside)
         signUpButton.addTarget(self, action: #selector(didTapSignUp), for: .touchUpInside)
     }
+    
+    
     
     // 로그인 버튼 클릭 시 실행
     @objc private func didTapLogin() {
@@ -219,11 +225,7 @@ class LoginViewController: UIViewController {
         let mainVC = TabBarController()
         let nav = UINavigationController(rootViewController: mainVC)
         nav.modalPresentationStyle = .fullScreen
-        present(nav, animated: true) 
-        
-        
-        
-        
+        present(nav, animated: true)
     }
 
     
@@ -238,6 +240,7 @@ class LoginViewController: UIViewController {
     
     }
 
+    
     /* ---------- Alert 헬퍼 메서드 ---------- */
     
     private func showAlert(title: String, message: String) {

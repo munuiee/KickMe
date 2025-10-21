@@ -28,6 +28,7 @@ class TabBarController: UITabBarController {
     
     
     
+    
     /* ----------- 버튼 클릭시 페이지 이동 함수 ----------- */
     // 페이지 확인용 임시 코드
     @objc private func openMapVC() {
@@ -37,13 +38,15 @@ class TabBarController: UITabBarController {
         bar.updateColors(selectedIndex: selectedIndex)
     }
     
+    
+    
     // "대여/반납" 버튼
     @objc private func openRegisterVC() {
         let isRented = CoreDataManager.shared.isCurrentlyRented()
         
         if isRented {
             CoreDataManager.shared.completeRental()
-
+            
             self.changeMainButton(to: "대여")
             selectedIndex = 0
             (viewControllers?[0] as? UINavigationController)?
@@ -56,6 +59,8 @@ class TabBarController: UITabBarController {
         bar.updateColors(selectedIndex: selectedIndex)
     }
     
+    
+    
     // 페이지 확인용 임시 코드
     @objc private func openMyPageVC() {
         selectedIndex = 2
@@ -66,7 +71,11 @@ class TabBarController: UITabBarController {
     
     
     
+    
+    
     /* ---------- 커스텀 버튼에 탭 전환 액션 연결 ---------- */
+    
+    
     // 각 페이지 뷰컨 이곳에 연결해주세요 지금 연결된 뷰컨은 전부 임시로 만들어둔 거예요
     private func addVC() {
         let mapVC = UINavigationController(rootViewController: MapViewController())
@@ -84,12 +93,15 @@ class TabBarController: UITabBarController {
         bar.mainButton.addTarget(self, action: #selector(openRegisterVC), for: .touchUpInside)
         bar.myPageButton.addTarget(self, action: #selector(openMyPageVC), for: .touchUpInside)
         
-        
     }
     
-    
 }
+
+
+
+
 /* ---------- "등록하기" 버튼에서 호출할 함수 ---------- */
+
 extension TabBarController {
     func changeMainButton(to title: String) {
         if let customTabBar = self.tabBar as? CustomTabBar {
