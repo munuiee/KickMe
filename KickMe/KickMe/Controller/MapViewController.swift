@@ -153,7 +153,7 @@ final class MapViewController: UIViewController {
         
         search.snp.makeConstraints {
             $0.height.equalTo(40)
-            $0.top.equalToSuperview().inset(100)
+            $0.top.equalToSuperview().inset(120)
             $0.leading.trailing.equalToSuperview().inset(20)
         }
         
