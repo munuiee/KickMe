@@ -68,7 +68,7 @@ KickMe
 
 | 김리하   | 변지혜       | 박혜연      |
 |-------------|--------------|-------------|
-| <div align="center">[@RiHA039](https://github.com/RiHA039)</div>  | <div align="center">[@munuiee](https://github.com/munuiee)</div> | <div align="center">[@104hyeon](https://github.com/104hyeon)</div> |
+| <div align="center">[@meowbyterh](https://github.com/meowbyterh)</div>  | <div align="center">[@munuiee](https://github.com/munuiee)</div> | <div align="center">[@104hyeon](https://github.com/104hyeon)</div> |
 
 ## 프로젝트 기능
 
